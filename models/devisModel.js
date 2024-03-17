@@ -6,6 +6,6 @@ const devisSchema = new Schema({
     
 });
 
-const quoteModel= documents.discriminator('Devis', devisSchema);
+const devisModel= documents.discriminator('Devis', devisSchema);
 
-module.exports = quoteModel;
+module.exports = devisModel;
