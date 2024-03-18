@@ -1,6 +1,6 @@
 const mongoose= require("mongoose"); 
 const { Schema } = mongoose;
-// Définition du schéma pour les produits dans la base de données
+
 const productModel = new Schema({
     nom: { type: String, required: true }, 
   description: { type: String, required: true }, 

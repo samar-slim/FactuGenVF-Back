@@ -3,6 +3,7 @@ const dotenv = require("dotenv").config();
 const app = express();
 const  userroutes =require('./routes/userRoutes');
 const clientRouter = require('./routes/clientRouter');
+const produitRoutes = require('./routes/produitRoute')
 const mongoose = require("mongoose");
 
 mongoose.Promise = global.Promise;
@@ -15,10 +16,12 @@ mongoose.connect("mongodb+srv://factu:factu@cluster0.cqztsth.mongodb.net/?retryW
   .catch((err) => {
     console.log("DB connection failed with - ", err);
   });
+  app.use(express.json());
 
 
  app.use('/api/users',userroutes);
- app.use('/api/client', clientRouter);
+ app.use('/api/clients', clientRouter);
+ app.use('/api/produits', produitRoutes);
 // SERVER LISTENING
  const port = process.env.PORT || 5000;
 

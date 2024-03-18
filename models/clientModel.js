@@ -1,6 +1,6 @@
 const mongoose= require("mongoose"); 
 const { Schema } = mongoose;
-// Définition du schéma pour les clients dans la base de données
+
 const client = new Schema({
     nom: {type: String, required: true},
     prenom: {type: String, required: true},
@@ -13,4 +13,4 @@ const client = new Schema({
     
 
   });
-  module.exports = mongoose.model('Client', client);
+  module.exports = mongoose.model('client', client);

@@ -1,7 +1,12 @@
-const express =require("express");
-const router = express.Router();
-const { getAllClient} = require("../controllers/clientController");
+const express = require("express");
+const router = express.Router(); 
+const { getAllClient  ,getClientById, createClient, deleteClient, updateClient } = require("../controllers/clientController"); 
 
-router.get("/client", getAllClient);
+router.post("/add", createClient);
+router.get("/", getAllClient);
+router.get("/:ClientId", getClientById);
+router.delete("/:ClientId",deleteClient);
+router.put(":ClientId",updateClient);
 
-module.exports = router
+
+module.exports = router;
