@@ -23,7 +23,7 @@ mongoose.connect("mongodb+srv://factu:factu@cluster0.cqztsth.mongodb.net/?retryW
  app.use('/api/clients', clientRouter);
  app.use('/api/produits', produitRoutes);
 // SERVER LISTENING
- const port = process.env.PORT || 5000;
+ const port = process.env.PORT || 6666;
 
  app.listen(port ,() => {
     console.log(`server running on port ${port}`);
