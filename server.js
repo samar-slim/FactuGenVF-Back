@@ -5,8 +5,13 @@ const cors = require("cors");
 const  userroutes =require('./routes/userRoutes');
 const clientRouter = require('./routes/clientRouter');
 const produitRoutes = require('./routes/produitRoute');
+const reclamationRoutes = require('./routes/reclamationRoute');
 const auth = require('./routes/authRoutes');
 const mongoose = require("mongoose");
+var audit = require('express-requests-logger')
+
+
+let checkAuth = require('./midleware/authMidleware');
 
 mongoose.Promise = global.Promise;
 // Connection URI
@@ -30,10 +35,12 @@ mongoose.connect(uri)
 app.use(cors({
   origin: 'http://localhost:5173'
 }));
+app.use(audit());
  app.use('/api/auth', auth);
- app.use('/api/users',userroutes);
- app.use('/api/clients', clientRouter);
- app.use('/api/produits', produitRoutes);
+ app.use('/api/users',checkAuth,userroutes);
+ app.use('/api/clients',checkAuth, clientRouter);
+ app.use('/api/produits', checkAuth, produitRoutes);
+ app.use('/api/reclamation', checkAuth, reclamationRoutes);
 
  // SERVER LISTENING
  const port = process.env.PORT || 8080;

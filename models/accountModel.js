@@ -9,7 +9,7 @@ const AccountSchema = new mongoose.Schema({
     required: true,
   },
   accountIdentifier: { type: String, required: true },
-  accountType: { type: String, default: 'free', enum: ['free', 'premium'] },
+  accountType: { type: String, default: 'free', enum: ['free', 'premium','admin'] },
   password: { type: String, required: true},
   registrationDate: { type: Date, default: Date.now },
   terminationDate: { type: Date, required: false },
