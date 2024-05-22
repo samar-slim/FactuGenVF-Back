@@ -7,6 +7,7 @@ const clientRouter = require('./routes/clientRouter');
 const produitRoutes = require('./routes/produitRoute');
 const reclamationRoutes = require('./routes/reclamationRoute');
 const auth = require('./routes/authRoutes');
+const backupRoutes = require('./routes/backupRoutes');
 const mongoose = require("mongoose");
 var audit = require('express-requests-logger')
 
@@ -41,6 +42,7 @@ app.use(audit());
  app.use('/api/clients',checkAuth, clientRouter);
  app.use('/api/produits', checkAuth, produitRoutes);
  app.use('/api/reclamation', checkAuth, reclamationRoutes);
+ app.use('/api/backup', checkAuth, backupRoutes);
 
  // SERVER LISTENING
  const port = process.env.PORT || 8080;
