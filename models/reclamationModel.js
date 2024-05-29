@@ -7,8 +7,8 @@ const reclamation = new Schema({
         ref: 'User',
         required: true,
       },
-    dateCreation: { type: Date, required: true }, 
-    tittle: {type: String, required: true},
+    dateCreation: { type: Date,     default: Date.now,      required: true }, 
+    title: {type: String, required: true},
     discription: { type: String, required: true }, 
   });
   module.exports = mongoose.model('Reclamation', reclamation);

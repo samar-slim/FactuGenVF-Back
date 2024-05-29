@@ -8,11 +8,13 @@ const produitRoutes = require('./routes/produitRoute');
 const reclamationRoutes = require('./routes/reclamationRoute');
 const auth = require('./routes/authRoutes');
 const backupRoutes = require('./routes/backupRoutes');
+const dashbord = require('./routes/dashbordRoutes');
 const mongoose = require("mongoose");
 var audit = require('express-requests-logger')
 
 
 let checkAuth = require('./midleware/authMidleware');
+let adminCheck = require('./midleware/adminCheckmidleware');
 
 mongoose.Promise = global.Promise;
 // Connection URI
@@ -43,8 +45,9 @@ app.use(audit());
  app.use('/api/produits', checkAuth, produitRoutes);
  app.use('/api/reclamation', checkAuth, reclamationRoutes);
  app.use('/api/backup', checkAuth, backupRoutes);
+ app.use('/api/admindashbord',checkAuth,  adminCheck ,dashbord);
 
- // SERVER LISTENING
+ // SERVER LISTENING,
  const port = process.env.PORT || 8080;
 
  app.listen(port ,() => {

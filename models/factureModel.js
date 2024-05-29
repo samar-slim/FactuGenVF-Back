@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const documents = require('./documents');
+const documents = require('./documentModel');
 const { Schema } = mongoose;
 
 const factureModel = new Schema({

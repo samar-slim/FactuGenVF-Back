@@ -3,27 +3,29 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/db');
 
 const createReclamation = async(req,res) => {
+    console.log("request resived : +++++++++" )
     try{
-         const { title, message } = req.body;
-         const token = req.headers.authorization.split(' ')[1];
+         const { title, discription, user } = req.body;
+         console.log(req.body);
 
-         const rawPayload = atob(token);
-        const user = JSON.parse(rawPayload);
-        console.log(user.username);
-         if (!title || !message) {
+         if (!title || !discription || !user ) {
+            console.log("error reclamation + :", err.message)
             return res.status(400).json({ success: false, message: "Tous les champs sont requis" });
         }
-         const newReclamation = new reclamation({
-            user: User._id,
+        console.log("test here ");
+         const newReclamation = new Reclamation({
+            user: user,
             title : title,
-            message: message
+            discription: discription,
 
          });
+         console.log("no error here ?");
          await newReclamation.save();
 
          return res.status(201).json(newReclamation);
     }
     catch(err){
+        console.log("error reclamation  creation error:", err.message)
         return res.status(500).json({ success: false, message: err.message });
     }
 };
