@@ -74,8 +74,8 @@ async function signUp(req, res) {
 //login
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    let accountIdentifier = email;
+    const { accountIdentifier, password } = req.body;
+    //let accountIdentifier = email;
     console.log('Identifiant account:', accountIdentifier);
 
     const account = await Account.findOne({ accountIdentifier });

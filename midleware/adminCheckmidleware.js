@@ -1,4 +1,4 @@
-const Account = require('../models/Account'); // Adjust the path to your Account model
+const Account = require('../models/accountModel'); 
 
 const adminCheckMiddleware = async (req, res, next) => {
   const { accountId } = req.params;
