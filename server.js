@@ -9,6 +9,7 @@ const reclamationRoutes = require('./routes/reclamationRoute');
 const auth = require('./routes/authRoutes');
 const backupRoutes = require('./routes/backupRoutes');
 const dashbord = require('./routes/dashbordRoutes');
+const account = require('./routes/accountRoutes');
 const mongoose = require("mongoose");
 var audit = require('express-requests-logger')
 
@@ -46,7 +47,7 @@ app.use(audit());
  app.use('/api/reclamation', checkAuth, reclamationRoutes);
  app.use('/api/backup', checkAuth, backupRoutes);
  app.use('/api/admindashbord',checkAuth,  adminCheck ,dashbord);
-
+app.use('/api/account', checkAuth, account);
  // SERVER LISTENING,
  const port = process.env.PORT || 8080;
 
