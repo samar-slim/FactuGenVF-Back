@@ -239,37 +239,31 @@ const resetPassword = async (req, res) => {
 
 /* change password */
 const changePassword = async (req, res) => {
-  const accountId = req.parms.accountId; // Assuming req.user contains the authenticated user's information
+  const { accountId } = req.params;
   const { currentPassword, newPassword } = req.body;
 
   try {
-    // Fetch the user by ID
     const account = await Account.findById(accountId);
-
-    if (!Account) {
-      return res.status(404).json({ message: 'account not found' });
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
     }
 
-    // Compare the provided current password with the stored hashed password
     const isMatch = await bcrypt.compare(currentPassword, account.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Current password is incorrect' });
     }
 
-    // Hash the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update the user's password
     account.password = hashedPassword;
-    await user.save();
+    await account.save();
 
-    // Respond with success
     res.status(200).json({ message: 'Password changed successfully' });
   } catch (error) {
     console.error('Error changing password:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
   
