@@ -18,7 +18,7 @@ let adminCheck = require('./midleware/adminCheckmidleware');
 
 mongoose.Promise = global.Promise;
 // Connection URI
-const uri =  'mongodb+srv://salemhellal2:fja35uRnkwRnv3rt@cluster0.ebyqq2o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; 
+const uri =  'mongodb+srv://samarslim64:s24042002@cluster0.ogzjsac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; 
 
 // Database name
 const dbName = process.env.DB_NAME;

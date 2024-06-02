@@ -16,7 +16,7 @@ async function signUp(req, res) {
   const { user, account } = req.body;
 
   const { nom, prenom, email, telephone, pays, ville, adresse, contact, type } = user;
-  const { accountIdentifier, typeaccount, password } = account;
+  const { accountIdentifier,accountType, password } = account;
   //const salt = await bcrypt.genSalt(10);
   //const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -40,11 +40,12 @@ async function signUp(req, res) {
       contact,
       type,
     });
+    console.log("user---------------",newUser);
 
     const newaccount = new Account({
       user: newUser._id,
       accountIdentifier,
-      typeaccount,
+      accountType,
       password,
       dateInscription: Date.now(),
       statut: 'actif',
@@ -53,18 +54,21 @@ async function signUp(req, res) {
         confidentialite: 'public',
       },
     });
-
+    try{
+      await newUser.save();
+    }catch (error) {
+      console.error(error);
+      return res.status(500).json({  message: 'Erreur lors de la création du user.',user });}
 
     try {
-      await newaccount.save();
-      await newUser.save();
+      await newaccount.save()
     } catch (error) {
       console.error(error);
 
       return res.status(500).json({  message: 'Erreur lors de la création du account.' });
     }
 
-    res.status(201).json({ success: true, message: 'Inscription réussie.' });
+   return res.status(201).json({ success: true, message: 'Inscription réussie.' });
   } catch (error) {
     console.error(error);
     res.status(500).json({success: false, message: 'Erreur lors de l\'inscription.' });
@@ -106,6 +110,7 @@ const login = async (req, res) => {
       accountId : account._id,
       accountIdentifier : account.accountIdentifier,
       role: account.accountType,
+      userId: account.user
     }
 
     res.cookie("app-session-token", token, {
@@ -232,8 +237,43 @@ const resetPassword = async (req, res) => {
   }
 };
 
+/* change password */
+const changePassword = async (req, res) => {
+  const accountId = req.parms.accountId; // Assuming req.user contains the authenticated user's information
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    // Fetch the user by ID
+    const account = await Account.findById(accountId);
+
+    if (!Account) {
+      return res.status(404).json({ message: 'account not found' });
+    }
+
+    // Compare the provided current password with the stored hashed password
+    const isMatch = await bcrypt.compare(currentPassword, account.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password
+    account.password = hashedPassword;
+    await user.save();
+
+    // Respond with success
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
   
 
 
 
-module.exports = { signUp, login, logout, sendResetPasswordEmail, resetPassword };
+module.exports = { signUp, login, logout, sendResetPasswordEmail, resetPassword, changePassword };
