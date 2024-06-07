@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const Devis = require('../models/devisModel');
 const Factures = require('../models/factureModel');
 const Account = require('../models/accountModel');
+const HistoriqueActivite = require('../models/historiqueActivityModel');
 
 
 async function getDashbordData(req, res){
@@ -26,11 +27,16 @@ async function getDashbordData(req, res){
         let FacturesCount = await Factures.countDocuments();
         let ExportationTotal = 0;
         
+        
+        let userData = await HistoriqueActivite.find({'cible': '/login'});
+        console.log("userData", userData);
         let Dashbord = {
+            Date: Date.now(),
             Users: UsersCount,
             Devis: DevisCount,
             Factures: FacturesCount,
             Exportation: ExportationTotal, 
+            HistoriqueActivite: userData
         }
 
 
