@@ -101,10 +101,41 @@ async function upload(req, res) {
             fs.unlinkSync(pngImagePath);
             
             
-            let promp = 'take this text as input \
-            ${data.text}\
-            create an object in this format: \
-            '
+            let prompt = ` \
+            ${data.text} \
+            give json for a invoice using the data and his fromat: \
+            documents = new Schema({idImport: { type: String, required: true },    dateImport: { type: Date, required: true },    numDoc: { type: String, required: true },     dateCreation: { type: Date, required: true },     dateEcheance: { type: Date, required: false },    montantHT: { type: Number, required: true },    montantTTC: { type: Number, required: true },     montantTVA: { type: Number, required: false },    remise: { type: Number, required: false },     statut: { type: String, required: true, enum: [en_cours, validé, payé, confirmé] },     commentaire: { type: String, required: false },    modePaiement: { type: String, required: false },    datePaiement: { type: Date, required: false },    adresse: { type: String, required: false },     source: { type: String, required: false },}); \
+            retrun only the json  `; 
+
+            let counter = 0 
+            let MaxRetries = 3
+            while (true){ 
+                try{
+                    console.log('===================================')
+                    console.log("prompt:", prompt);
+                    console.log('===================================')
+                    const AIObeject = await generateText(prompt);
+                    console.log("++++++++++++++++++++++++++++++")
+                    console.log("AIObeject:", AIObeject);
+                    let AIjson = extractJSON(AIObeject);
+                    console.log("++++++++++++++++++++++++++++++")
+                    console.log('AIjson :' , AIjson[0]);
+                    let document = new Documents(AIjson[0]);
+
+                    
+
+                    // Send the OCR text back to the client
+                    res.status(200).json({ text: document });
+                } catch (error) {
+                    if (counter < MaxRetries) {
+                        console.log("Error in generateText:", error);
+                        counter++;
+                        console.log("counter:", counter);
+                    } else {
+                        console.log("Error in generateText:", error);
+                        throw error;
+                    }
+            }}
             // Send the OCR text back to the client
             res.json({ text: data.text });
 
@@ -129,28 +160,66 @@ async function upload(req, res) {
         //let json = Documents.schema.tree;
         //console.log("Document schema:", json);
 
-        let prompt = ` \
-        ${data.text} \
-        give json for a invoice uinst the data and his fromat: \
-        documents = new Schema({idImport: { type: String, required: true },    dateImport: { type: Date, required: true },    numDoc: { type: String, required: true },     dateCreation: { type: Date, required: true },     dateEcheance: { type: Date, required: false },    montantHT: { type: Number, required: true },    montantTTC: { type: Number, required: true },     montantTVA: { type: Number, required: false },    remise: { type: Number, required: false },     statut: { type: String, required: true, enum: [en_cours, validé, payé, confirmé] },     commentaire: { type: String, required: false },    modePaiement: { type: String, required: false },    datePaiement: { type: Date, required: false },    adresse: { type: String, required: false },     source: { type: String, required: false },}); \
-        retrun only the object  `; 
-        console.log('===================================')
-        console.log("prompt:", prompt);
-        console.log('===================================')
+        let prompt =` Invoice Details:
+            ${data.text} 
 
-        const AIObeject = await generateText(prompt);
-        console.log("++++++++++++++++++++++++++++++")
-        console.log("AIObeject:", AIObeject);
-        let AIjson = extractJSON(AIObeject);
-        console.log("++++++++++++++++++++++++++++++")
-        console.log('AIjson :' , AIjson[0]);
-        let document = new Documents(AIjson[0]);
+            Please provide a JSON representation of this invoice using the following format:
 
-        document.save();
-        console.log("++++++++++++++++++++++++++++++")
-        console.log('document created ')
-        // Send the OCR text back to the client
-        res.status(200).json({ text: data.text });   
+            documents = {idImport: { type: String, required: true },
+                dateImport: { type: Date, required: true },
+                    numDoc: { type: String, required: true },
+                    dateCreation: { type: Date, required: true },     
+                    dateEcheance: { type: Date, required: false },    
+                    montantHT: { type: Number, required: true },    
+                    montantTTC: { type: Number, required: true },     
+                    montantTVA: { type: Number, required: false },    
+                    remise: { type: Number, required: false },     
+                    statut: { type: String, required: true, enum: [en_cours, validé, payé, confirmé] },     
+                    commentaire: { type: String, required: false },    
+                    modePaiement: { type: String, required: false },    
+                    datePaiement: { type: Date, required: false },    
+                    adresse: { type: String, required: false },     
+                    source: { type: String, required: false },}
+
+            Please return only the JSON object.
+             `; 
+        let counter = 0;
+        let MaxRetries = 3;
+        let repert = true;
+        while (repert) {
+            
+            try{
+                console.log('===================================')
+                console.log("prompt:", prompt);
+                console.log('===================================')
+
+                const AIObeject =  await generateText(prompt);
+                console.log("++++++++++++++++++++++++++++++")
+                console.log("AIObeject:", AIObeject);
+                let AIjson = extractJSON(AIObeject);
+                console.log("++++++++++++++++++++++++++++++")
+                console.log('AIjson :' , AIjson[0]);
+                let document = new Documents(AIjson[0]);
+                document.dateCreation = Date.now()
+                document.dateImport = Date.now()
+
+    
+                console.log("++++++++++++++++++++++++++++++")
+                console.log('document created ')
+                repert = false 
+                // Send the OCR text back to the client
+                res.status(200).json({ text: document });
+            } catch(error) {
+                if (counter < MaxRetries){
+                    console.log("Error in generateText:", error);
+                    counter++;
+
+                }else {
+                    console.log( "Error : ", error)
+                    throw error;
+                }
+            } 
+        } 
     }
 
 
