@@ -1,6 +1,5 @@
 const User = require("../models/userModel");
-const jwt = require('jsonwebtoken');
-const config = require('../config/db');
+
 
 const createUsers = async(req,res) => {
     try{
@@ -61,24 +60,14 @@ const deleteUser = async(req,res) => {
         return res.json(err)
     }
 };
-const updateUser = async (req, res) => {
-    const userId = req.params.userId;
-    const userData = req.body; // Assuming the request body contains the updated user data
-
+const updateUser= async(req, res) => {
+    const id = req.params.userId;
+    const data = req.body;
     try {
-        // Find the user by ID and update with the new data
-        const updatedUser = await User.findByIdAndUpdate(userId, userData, { new: true });
-
-        if (!updatedUser) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // If the user was successfully updated, return the updated user data
-        return res.status(200).json(updatedUser);
-    } catch (error) {
-        // If an error occurs during the update operation, return an error response
-        console.error('Error updating user:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        const updateUser = await User.findByIdAndUpdate(id, data, { new: true });
+        return res.json(updateUser);
+    } catch (err) {
+        return res.json(err);
     }
 };
 

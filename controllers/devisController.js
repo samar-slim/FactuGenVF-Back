@@ -1,86 +1,185 @@
+const mongoose = require('mongoose');
 const Devis = require('../models/devisModel');
-
+const shortid = require('shortid');
 const createdevis = async (req, res) => {
-    try {
-      
-        const {
-            idImport,
-            dateImport,
-            numDoc,
-            dateCreation,
-            dateEcheance,
-            montantHT,
-            montantTTC,
-            montantTVA,
-            remise,
-            statut,
-            commentaire,
-            modePaiement,
-            datePaiement,
-            adresse,
-            source
-        } = req.body;
+    const {
+        nom_entreprise,
+        num,
+        code_postal,
+        ville,
+        email,
+        num_tel,
+        num_siret,
+        num_tva,
+        date_emission,
+        date_expiration,
+        inter,
+        deleg,
+        titre,
+        numDevis,
+        description,
+        clientId, 
+        produitId,
+        total,
+        totalHt,
+        remise,
+        totalTTC,
+        remarque,
+        condition,
+        paiement,
+        nom_article,
+        prix,
+        prix_unitaire,
+        reference,
 
+        tva,
+        quantity,
+        imageUrl
         
-        const nouvelledevis = await Devis.create({
-            idImport,
-            dateImport,
-            numDoc,
-            dateCreation,
-            dateEcheance,
-            montantHT,
-            montantTTC,
-            montantTVA,
-            remise,
-            statut,
-            commentaire,
-            modePaiement,
-            datePaiement,
-            adresse,
-            source
-        });
 
-       
-        res.status(201).json({ success: true, data: nouvelledevis });
+    } = req.body;
+
+    try {
+      console.log(req.body)
+        const nouvelledevis = new Devis(
+           req.body
+
+        );
+
+       await nouvelledevis.save();
+       console.log('DEVIS :: ', nouvelledevis  );
+        res.status(201).json({ nouvelledevis });
     } catch (err) {
      
         res.status(500).json({ success: false, message: 'Erreur lors de la création de la devis', error: err.message });
     }
 };
-
-
+async function uploadImage(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+  
+      const newImage = new Image({
+        fileName: req.file.filename,
+        imageUrl: req.file.path,
+      });
+  
+      const savedImage = await newImage.save();
+  
+      res.status(200).json(savedImage);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
 
 const getAlldevis = async (req,res) => {
     try{
-        const deviss = await Devis.find()
-        return res.status(200).json(deviss);
+        const devis = await Devis.find()
+        return res.status(200).json(devis);
 
 
     }catch(error){
         return res.status(500).json({ success :false , message: error.message})
     }
 };
+const getClientDevis = async (req, res) => {
+  try {
+    const clientId = req.query.clientId;
+    console.log('Client ID:', clientId);
+
+    if (!mongoose.Types.ObjectId.isValid(clientId)) {
+      return res.status(400).json({ message: 'Invalid client ID' });
+    }
+
+    const clientDevis = await Devis.aggregate([
+      { $match: { clientId: mongoose.Types.ObjectId(clientId) } },
+      // Ajoutez d'autres étapes de l'agrégation si nécessaire
+    ]);
+
+    console.log({ x: clientDevis });
+
+    if (clientDevis.length === 0) {
+      return res.status(404).json({ message: 'No quotes found for this client' });
+    }
+
+    res.json(clientDevis);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des devis associés au client :', error.message);
+    res.status(500).json({ message: 'Erreur lors de la récupération des devis' });
+  }
+};
+
 
 
 const getdevisById =async(req,res) => {
     const id =req.params.devisId;
+    
     try{
-    const devis = await Devis.findById(id);
-    return res.json(devis);
+    const devis = await Devis.findById(id)
+
+    if (devis) {
+        devis.clientId = devis.devis.clientId;
+        devis.produitId = devis.devis.produitId;
+        devis.remarque = devis.devis.remarque;
+        devis.paiement = devis.devis.paiement;
+        devis.condition = devis.devis.condition;
+        devis.totalTTC = devis.devis.totalTTC;
+        devis.totalHT = devis.devis.totalHT;
+
+
+      
+       
+
+        return res.json(devis);
+    } else {
+        return res.status(404).json({ error: "Devis non trouvé" });
+    }
 }catch (err) {
     return res.json(err);
 }
 }
+const genererLienPartage = async (req, res) => {
+    const { devisId } = req.params;
+    const lienPartage = shortid.generate();
+  
+    try {
+      // Mettre à jour le devis dans la base de données avec le lien de partage
+      const devis = await Devis.findByIdAndUpdate(devisId, { lienPartage }, { new: true });
+  
+      // Envoyer le lien de partage en réponse
+      res.status(200).json({ lienPartage: `${req.hostname}/devis/${lienPartage}` });
+    } catch (error) {
+      console.error('Erreur lors de la génération du lien de partage :', error);
+      res.status(500).json({ message: 'Erreur lors de la génération du lien de partage' });
+    }
+  }
 
-const updatedevis= async(req, res) => {
+const updatedevis = async (req, res) => {
     const id = req.params.devisId;
     const data = req.body;
     try {
-        const updatedevis = await devis.findByIdAndUpdate(id, data, { new: true });
+        const updatedevis = await Devis.findByIdAndUpdate(id, data, { new: true });
         return res.json(updatedevis);
     } catch (err) {
         return res.json(err);
     }
 };
+const deleteDevis = async (req, res) => {
+  const id = req.params.devisId;
+  console.log('iddd',id)
+  try {
+      const deletedDevis = await Devis.findByIdAndDelete(id);
+      if (!deletedDevis) {
+          return res.status(404).json({ message: 'devis non trouvé' });
+      }
+      return res.status(200).json({ message: 'devis supprimé avec succès' });
+  } catch (err) {
+      console.error('Erreur lors de la suppression du devis:', err);
+      return res.status(500).json({ message: 'Erreur lors de la suppression du produit' });
+  }
+};
 
-module.exports = {getAlldevis ,getdevisById ,createdevis ,updatedevis}
+
+module.exports = {getClientDevis, genererLienPartage,uploadImage, getAlldevis ,getdevisById ,createdevis ,updatedevis,deleteDevis}

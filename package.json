@@ -25,6 +25,7 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.13",
     "pdf-to-png-converter": "^3.2.0",
+    "shortid": "^2.2.16",
     "tesseract.js": "^5.1.0"
   },
   "keywords": [],
