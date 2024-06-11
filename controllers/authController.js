@@ -48,7 +48,7 @@ async function signUp(req, res) {
       accountType,
       password,
       dateInscription: Date.now(),
-      statut: 'actif',
+      statut: 'active',
       parametresDuaccount: {
         notifications: true,
         confidentialite: 'public',
