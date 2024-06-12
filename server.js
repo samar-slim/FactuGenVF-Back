@@ -117,8 +117,6 @@ app.use('/api/admindashbord',checkAuth,  adminCheck ,dashbord);
 app.use('/api/reclamation', checkAuth, reclamationRoutes);
 
  
-
-
 // SERVER LISTENING
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
