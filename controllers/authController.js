@@ -68,7 +68,9 @@ async function signUp(req, res) {
       return res.status(500).json({  message: 'Erreur lors de la création du account.' });
     }
 
-   return res.status(201).json({ success: true, message: 'Inscription réussie.' });
+    let userData =  newUser ;
+    
+   return res.status(201).json({ success: true, message: 'Inscription réussie.' , userData});
   } catch (error) {
     console.error(error);
     res.status(500).json({success: false, message: 'Erreur lors de l\'inscription.' });
@@ -105,6 +107,7 @@ const login = async (req, res) => {
       expiresIn: '1h',
     });
     console.log('Token:', token);
+    
 
     let profile = {
       accountId : account._id,
