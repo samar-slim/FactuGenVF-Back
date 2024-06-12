@@ -12,6 +12,13 @@ const userSchema = new Schema({
   adresse: {type: String, required: false},
   contact:{type: String, required: false},
   type: {type: String, required: true},
+  nomEntreprise: {type: String, required: false},
+  emailEntreprise:  {type: String, required: false},
+  telEntreprise:  {type: String, required: false},
+  adrEntreprise:  {type: String, required: false},
+  paysEntreprise: {type: String, required: false},
+  siretEntreprise:  {type: String, required: false},
+  tvaEntreprise:  {type: String, required: false},
 });
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,4 +1,6 @@
 const User = require("../models/userModel");
+const mongoose = require('mongoose');
+const { userSchema } = require('../models/userModel');
 
 
 const createUsers = async(req,res) => {
@@ -17,12 +19,24 @@ const createUsers = async(req,res) => {
             ville,
             adresse,
             contact,
-            type
+            type,
+            nomEntreprise: "",
+            emailEntreprise:  "",
+            telEntreprise:  "",
+            adrEntreprise:  "",
+            paysEntreprise: "",
+            siretEntreprise:  "",
+            tvaEntreprise:  "", 
 
          });
-         await newUser.save();
+         await newUser.save().then(() => {
+             console.log("user created", newUser);
+             return res.status(201).json(newUser);
+         }).catch((err) => {
+             return res.status(500).json({ success: false, message: err.message });
+         });
 
-         return res.status(201).json(newUser);
+         
     }
     catch(err){
         return res.status(500).json({ success: false, message: err.message });
@@ -60,16 +74,40 @@ const deleteUser = async(req,res) => {
         return res.json(err)
     }
 };
-const updateUser= async(req, res) => {
+const updateUser = async (req, res) => {
     const id = req.params.userId;
     const data = req.body;
+  
     try {
-        const updateUser = await User.findByIdAndUpdate(id, data, { new: true });
-        return res.json(updateUser);
+      // Validate userId (optional but recommended)
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+  
+      // Validate the update data (optional but recommended)
+      // You can add more specific validation for your fields
+      if (Object.keys(data).length === 0) {
+        return res.status(400).json({ error: 'No update data provided' });
+      }
+  
+      // Log the schema (optional)
+      console.log('User schema:', User.schema.obj);
+  
+      // Update user
+      const updateUser = await User.findByIdAndUpdate(id, data, { new: true });
+  
+      if (!updateUser) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      console.log("User updated:", updateUser);
+      return res.status(200).json(updateUser);
     } catch (err) {
-        return res.json(err);
+      console.error('Error updating user:', err);
+      return res.status(500).json({ error: 'Internal server error' });
     }
-};
+  };
+  
 
 
 
