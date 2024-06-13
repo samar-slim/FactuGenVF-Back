@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv").config();
 const app = express();
+const Facture = require('./models/factureModel');
 const userroutes = require('./routes/userRoutes');
 const clientRouter = require('./routes/clientRouter');
 const produitRoutes = require('./routes/produitRoute');
@@ -24,7 +25,9 @@ const cors = require("cors");
 const multer = require('multer');
 const tesseract = require('tesseract.js');
 const path = require('path');
+const nodemailer = require('nodemailer');
 const fs = require('fs');
+const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -51,7 +54,7 @@ app.use(cors({
 mongoose.Promise = global.Promise;
 
 
-mongoose.connect("mongodb+srv://samarslim64:s24042002@cluster0.ogzjsac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect("mongodb://localhost:27017/Factugen")
   .then(() => {
     console.log("DB connected");
   })
@@ -59,7 +62,59 @@ mongoose.connect("mongodb+srv://samarslim64:s24042002@cluster0.ogzjsac.mongodb.n
     console.log("DB connection failed with - ", err);
   });
 
-
+  app.post('/api/save-signature', upload.single('signature'), async (req, res) => {
+    try {
+      const factureId = req.query.factureId;
+      const signatureFile = req.file;
+  
+      console.log('Facture ID:', factureId);
+      console.log('Signature File:', signatureFile);
+  
+      if (!factureId) {
+        return res.status(400).json({ error: 'Facture ID not provided' });
+      }
+  
+      if (!signatureFile) {
+        return res.status(400).json({ error: 'No signature file provided' });
+      }
+  
+      const facture = await Facture.findById(factureId);
+      if (facture) {
+        facture.facture.signatureUrl = '/uploads/' + signatureFile.filename;
+        await facture.save();
+        console.log('Signature URL saved successfully:', facture.signatureUrl);
+        res.json({ message: 'Signature URL saved successfully', signatureUrl: facture.signatureUrl });
+      } else {
+        res.status(404).json({ error: 'Facture not found' });
+      }
+    } catch (err) {
+      console.error('Error updating facture with signature URL:', err);
+      res.status(500).json({ error: 'Failed to update facture with signature URL' });
+    }
+  });
+  
+  // Route pour mettre à jour la facture avec l'URL de la signature
+  app.put('/api/factures/:id', async (req, res) => {
+    try {
+      const factureId = req.params.id;
+      const updatedFacture = req.body;
+  
+      console.log('Facture ID:', factureId);
+      console.log('Updated Facture:', updatedFacture);
+  
+      const facture = await Facture.findByIdAndUpdate(factureId, updatedFacture, { new: true });
+      if (facture) {
+        console.log('Facture updated successfully:', facture);
+        res.json({ message: 'Facture updated successfully', facture });
+      } else {
+        res.status(404).json({ error: 'Facture not found' });
+      }
+    } catch (err) {
+      console.error('Error updating facture:', err);
+      res.status(500).json({ error: 'Failed to update facture' });
+    }
+  });
+  
   app.post('/api/extract-text', upload.single('file'), async (req, res) => {
     const file = req.file;
     console.log('Fichier téléchargé :', file);
@@ -79,7 +134,73 @@ mongoose.connect("mongodb+srv://samarslim64:s24042002@cluster0.ogzjsac.mongodb.n
       res.status(500).json({ error: "Erreur lors de l'extraction de texte" });
     }
   });
+  const transporter = nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
   
+// Route pour envoyer la facture par email
+app.post('/api/send-facture', async (req, res) => {
+  const { factureId, recipientEmail } = req.body;
+
+  try {
+    // Récupérer les informations de la facture
+    const response = await axios.get(`http://localhost:8080/api/facture/showFacture/${factureId}`);
+    const facture = response.data.facture;
+    const produits = response.data.produitsSelectionnes;
+    const client = response.data.clientInfo;
+
+    // Générer le contenu de l'email
+    const emailContent = `
+      <h1>Facture N°: ${facture.numDevis}</h1>
+      <p>Date d'émission : ${facture.date_emission}</p>
+      <p>Date d'expiration : ${facture.date_expiration}</p>
+      
+      <h2>Client</h2>
+      <p>Nom : ${client.nom}</p>
+      <p>Prénom : ${client.prenom}</p>
+      <p>Adresse e-mail : ${client.email}</p>
+      <p>Téléphone : ${client.telephone}</p>
+
+      <h2>Produits</h2>
+      <ul>
+        ${produits.map(produit => `
+          <li>
+            <p>Référence : ${produit.reference}</p>
+            <p>Description : ${produit.description}</p>
+            <p>Quantité : ${produit.quantity}</p>
+            <p>Prix unitaire : ${produit.prix_unitaire}</p>
+          </li>
+        `).join('')}
+      </ul>
+
+      <p>Total TTC : ${facture.totalTTC}</p>
+
+      <p>Cordialement,<br>[Votre entreprise]</p>
+    `;
+
+    // Options de l'email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: recipientEmail,
+      subject: `Facture N°: ${facture.numDevis}`,
+      html: emailContent,
+    };
+
+    // Envoyer l'email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).send({ message: 'Erreur lors de l\'envoi de l\'email', error });
+      }
+      res.status(200).send({ message: 'Facture envoyée avec succès', info });
+    });
+  } catch (error) {
+    res.status(500).send({ message: 'Erreur lors de la récupération de la facture', error });
+  }
+});
 app.post('/process-text', (req, res) => {
   const text = req.body.text;
 
@@ -110,6 +231,7 @@ app.use('/api/users', userroutes);
 app.use('/api/devis', devisRoute);
 app.use('/api/facture', factureRoute);
 app.use('/api/client', clientRouter);
+app.use('/api/categories',categorieRoute);
 app.use('/api/produits', produitRoutes);
 app.use('/api/account', checkAuth, account);
 app.use('/api/ai', AIRoutes);

@@ -1,6 +1,6 @@
 
 const Client = require("../models/clientModel");
-
+const Facture = require("../models/factureModel");
 
 
 const createClient = async(req,res) => {
@@ -44,26 +44,32 @@ const getAllClient = async (req,res) => {
         return res.status(500).json({ success :false , message: error.message})
     }
 };
-
-
-const getClientById = async (req,res) => {
+const getClientById = async (req, res) => {
     const id = req.params.ClientId;
-    console.log('clientt',id)
+    console.log('Client ID:', id);
    
-    try{
+    try {
         const client = await Client.findById(id);
         if (!client) {
-            return res.status(404).json({ message: "client non trouvé" });
+            return res.status(404).json({ message: "Client non trouvé" });
         }
         
         return res.json(client);
     } catch (err) { 
-        console.error('Erreur lors de la récupération du produit :', err);
-        return res.status(500).json({ message: "Erreur serveur lors de la récupération du produit" });
+        console.error('Erreur lors de la récupération du client :', err);
+        return res.status(500).json({ message: "Erreur serveur lors de la récupération du client" });
     }
 };
+
 const deleteClient = async(req,res) => {
     const id = req.params.clientId ;
+
+    const foundFactures = Facture.findOne({ clientId : id });
+    if(foundFactures) {
+        return res.status(400).json({message : 'cette client a des factures, vous ne pouvez pas le supprimer'})
+    }
+
+
     try{
         const  deleteclient = await Client.findByIdAndDelete(id);
         return res.json(deleteclient);

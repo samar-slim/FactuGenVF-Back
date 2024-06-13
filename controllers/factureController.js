@@ -36,8 +36,8 @@ const createfacture = async (req, res) => {
         tva,
         quantity,
         imageUrl,
-        status
-        
+        status,
+        signatureImageUrl
 
     } = req.body;
 
@@ -48,9 +48,9 @@ const createfacture = async (req, res) => {
 
         );
 
-       await nouvellefacture.save();
+      const facture = await nouvellefacture.save();
        console.log('facture :: ', nouvellefacture  );
-        res.status(201).json({ nouvellefacture });
+        res.status(201).json({ facture });
     } catch (err) {
      
         res.status(500).json({ success: false, message: 'Erreur lors de la création de la facture', error: err.message });

@@ -3,6 +3,10 @@ const { Schema, Types } = mongoose;
 
 const FactureSchema = new Schema({
   facture:{
+   signatureUrl: {
+      type: String,
+      required: false,
+    },
   nom_entreprise: { type: String },
   num: { type: String },
   code_postal: { type: String },
