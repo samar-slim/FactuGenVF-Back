@@ -1,6 +1,7 @@
 
 const Client = require("../models/clientModel");
 const Facture = require("../models/factureModel");
+const Devis = require("../models/devisModel");
 
 
 const createClient = async(req,res) => {
@@ -64,18 +65,22 @@ const getClientById = async (req, res) => {
 const deleteClient = async(req,res) => {
     const id = req.params.clientId ;
 
-    const foundFactures = Facture.findOne({ clientId : id });
-    if(foundFactures) {
-        return res.status(400).json({message : 'cette client a des factures, vous ne pouvez pas le supprimer'})
-    }
-
-
-    try{
-        const  deleteclient = await Client.findByIdAndDelete(id);
-        return res.json(deleteclient);
-    }catch(err){
-        return res.json(err)
-    }
+    try {
+        const foundFactures = await Facture.findOne({ clientId: id });
+        if (foundFactures) {
+          return res.json({ message: 'Ce client a des factures, vous ne pouvez pas le supprimer' });
+        }
+    
+        const foundDevis = await Devis.findOne({ clientId: id });
+        if (foundDevis) {
+          return res.json({ message: 'Ce client a des devis, vous ne pouvez pas le supprimer' });
+        }
+    
+        const deleteClient = await Client.findByIdAndDelete(id);
+        return res.json({ message: 'Le client a été supprimé avec succès', client: deleteClient });
+      } catch (err) {
+        return res.status(500).json({ message: 'Erreur lors de la vérification ou la suppression du client', error: err });
+      }
 };
 const updateClient = async (req, res) => {
     try {
