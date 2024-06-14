@@ -108,13 +108,26 @@ const login = async (req, res) => {
     });
     console.log('Token:', token);
     
+    const user = await User.findById(account.user);
 
-    let profile = {
+    let profile =  {
+      name : user.nom,
+      prenom : user.prenom,
+      email : user.email,
+      telephone : user.telephone,
+      pays : user.pays,
+      ville : user.ville,
+      adresse : user.adresse,
+      contact : user.contact,
+      type : user.type,
+      accountId : account._id,
+    }
+    /*{
       accountId : account._id,
       accountIdentifier : account.accountIdentifier,
       role: account.accountType,
       userId: account.user
-    }
+    }*/
 
     res.cookie("app-session-token", token, {
       expire: oneDayInSeconds + Date.now(),
@@ -275,8 +288,27 @@ const changePassword = async (req, res) => {
 };
 
 
+const verifyToken =  async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1]; // Extract token from Authorization header
+  console.log('Token:', token);
+  const JWT_SECRET = process.env.JWT_SECRET;
+
+  if (!token) {
+    return res.status(401).json({ valid: false, message: 'Token not provided' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ valid: false, message: 'Invalid token' });
+    }
+
+    return res.status(200).json({ valid: true, decoded });
+  });
+}
+
+
   
 
 
 
-module.exports = { signUp, login, logout, sendResetPasswordEmail, resetPassword, changePassword };
+module.exports = { signUp, login, logout, sendResetPasswordEmail, resetPassword, changePassword, verifyToken };

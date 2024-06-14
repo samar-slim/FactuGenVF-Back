@@ -25,6 +25,8 @@ const multer = require('multer');
 const tesseract = require('tesseract.js');
 const path = require('path');
 const fs = require('fs');
+const  dataCron = require('./cornJobs/dataJobs.js');
+const cron = require('node-cron');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -51,7 +53,7 @@ app.use(cors({
 mongoose.Promise = global.Promise;
 
 
-mongoose.connect("mongodb+srv://samarslim64:s24042002@cluster0.ogzjsac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect("mongodb+srv://salemhellal2:fja35uRnkwRnv3rt@cluster0.ebyqq2o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
   .then(() => {
     console.log("DB connected");
   })
@@ -106,17 +108,18 @@ app.use('/api/backup', backupRoute);
 //app.use('/api/categories', categorieRoute);
 app.use('/api/', avoirRoute);
 app.use('/api/images', imageRoutes);
-app.use('/api/users', userroutes);
+app.use('/api/users',logRequest, userroutes);
 app.use('/api/devis', devisRoute);
 app.use('/api/facture', factureRoute);
 app.use('/api/client', clientRouter);
 app.use('/api/produits', produitRoutes);
 app.use('/api/account', checkAuth, account);
 app.use('/api/ai', AIRoutes);
-app.use('/api/admindashbord',checkAuth,  adminCheck ,dashbord);
+//app.use('/api/admindashbord',checkAuth,  adminCheck ,dashbord);
 app.use('/api/reclamation', checkAuth, reclamationRoutes);
+app.use('/api/admindashbord' ,dashbord);
 
- 
+//cron.schedule('*/1 * * * *', dataCron);
 
 
 // SERVER LISTENING
