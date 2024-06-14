@@ -15,7 +15,7 @@ async function signUp(req, res) {
 
   const { user, account } = req.body;
 
-  const { nom, prenom, email, telephone, pays, ville, adresse, contact, type } = user;
+  let { nom, prenom, email, telephone, pays, ville, adresse, contact, type } = user;
   const { accountIdentifier,accountType, password } = account;
   //const salt = await bcrypt.genSalt(10);
   //const hashedPassword = await bcrypt.hash(password, salt);
@@ -28,6 +28,9 @@ async function signUp(req, res) {
     let existingaccount = await Account.findOne({ accountIdentifier });
     if (existingaccount) {
       return res.status(400).json({ message: 'Il existe un account avec cet identifiant.' });
+    }
+    if( type === "Admin entreprise"){
+      type = "user";
     }
     const newUser = new User({
       nom,
@@ -68,9 +71,15 @@ async function signUp(req, res) {
       return res.status(500).json({  message: 'Erreur lors de la création du account.' });
     }
 
+    const JWT_SECRET = process.env.JWT_SECRET;
+    const oneDayInSeconds = 60 * 60 * 24 * 2;
+    const token = jwt.sign({ accountId: account._id }, JWT_SECRET, {
+      expiresIn:  oneDayInSeconds,
+    });
+    
     let userData =  newUser ;
     
-   return res.status(201).json({ success: true, message: 'Inscription réussie.' , userData});
+   return res.status(201).json({ success: true, message: 'Inscription réussie.' , userData, token });
   } catch (error) {
     console.error(error);
     res.status(500).json({success: false, message: 'Erreur lors de l\'inscription.' });
@@ -102,9 +111,9 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Mot de passe incorrect' });
     }
     const JWT_SECRET = process.env.JWT_SECRET;
-    const oneDayInSeconds = 86400;
+    const oneDayInSeconds = 60 * 60 * 24 * 2;
     const token = jwt.sign({ accountId: account._id }, JWT_SECRET, {
-      expiresIn: '1h',
+      expiresIn:  oneDayInSeconds,
     });
     console.log('Token:', token);
     
