@@ -5,9 +5,8 @@ const upload = require("../middelewares/upload"); // Assurez-vous que le chemin 
 const { getAllfacture,getClientFacture ,getfactureById, updatefacture, createfacture, deletefacture } = require("../controllers/factureController"); 
 
 // Route pour ajouter un facture avec téléchargement d'image
-router.post("/add", upload.single("image"), createfacture
-);
-
+//router.post("/add", upload.single("image"), createfacture);
+router.post("/", createfacture);
 // Autres routes
 router.get("/", getAllfacture);
 router.get("/client", getClientFacture)

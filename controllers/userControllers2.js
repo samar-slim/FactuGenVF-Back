@@ -18,7 +18,14 @@ const createUsers = async(req,res) => {
             ville,
             adresse,
             contact,
-            type
+            type,
+            nomEntreprise: "",
+            emailEntreprise:  "",
+            telEntreprise:  "",
+            adrEntreprise:  "",
+            paysEntreprise: "",
+            siretEntreprise:  "",
+            tvaEntreprise:  "", 
 
          });
          await newUser.save();

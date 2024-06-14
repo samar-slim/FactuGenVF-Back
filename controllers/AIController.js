@@ -101,11 +101,57 @@ async function upload(req, res) {
             fs.unlinkSync(pngImagePath);
             
             
-            let prompt = ` \
-            ${data.text} \
-            give json for a invoice using the data and his fromat: \
-            documents = new Schema({idImport: { type: String, required: true },    dateImport: { type: Date, required: true },    numDoc: { type: String, required: true },     dateCreation: { type: Date, required: true },     dateEcheance: { type: Date, required: false },    montantHT: { type: Number, required: true },    montantTTC: { type: Number, required: true },     montantTVA: { type: Number, required: false },    remise: { type: Number, required: false },     statut: { type: String, required: true, enum: [en_cours, validé, payé, confirmé] },     commentaire: { type: String, required: false },    modePaiement: { type: String, required: false },    datePaiement: { type: Date, required: false },    adresse: { type: String, required: false },     source: { type: String, required: false },}); \
-            retrun only the json  `; 
+            let prompt = `Invoice Details:
+            ${data.text} 
+
+            Please provide a JSON representation of this invoice using the following format:
+
+            documents ={
+                logoUrl: "string", // URL to the logo image
+                date: "string", // Date of the invoice
+                invoiceNumber: "string", // Invoice number
+                supplier: {
+                  companyName: "string", // Name of the supplier company
+                  number: "string", // Supplier number
+                  vat: "string", // Supplier VAT number
+                  address: "string", // Supplier address
+                  city: "string", // Supplier city
+                  postalCode: "string", // Supplier postal code
+                  country: "string", // Supplier country
+                },
+                customer: {
+                  companyName: "string", // Name of the customer company
+                  number: "string", // Customer number
+                  vat: "string", // Customer VAT number
+                  address: "string", // Customer address
+                  city: "string", // Customer city
+                  postalCode: "string", // Customer postal code
+                  country: "string", // Customer country
+                },
+                items: [
+                  {
+                    description: "string", // Description of the item
+                    price: "number", // Price of the item
+                    quantity: "number", // Quantity of the item
+                    vat: "number", // VAT percentage of the item
+                    subtotal: "number", // Subtotal of the item
+                    total: "number", // Total of the item
+                  },
+                  // Additional items...
+                ],
+                netTotal: "number", // Net total of the invoice
+                vatTotal: "number", // VAT total of the invoice
+                total: "number", // Total amount of the invoice
+                paymentDetails: {
+                  bankName: "string", // Bank name
+                  sortCode: "string", // Sort code
+                  accountNumber: "string", // Account number
+                  reference: "string", // Payment reference
+                },
+                notes: "string", // Additional notes
+              }; 
+            Please return only the JSON object don't return any unformatted text or empty values you can put a placeholder .
+             `; 
 
             let counter = 0 
             let MaxRetries = 3
@@ -125,7 +171,7 @@ async function upload(req, res) {
                     
 
                     // Send the OCR text back to the client
-                    res.status(200).json({ text: document });
+                    res.status(200).json({Facture: AIjson[0] });
                 } catch (error) {
                     if (counter < MaxRetries) {
                         console.log("Error in generateText:", error);
@@ -165,23 +211,51 @@ async function upload(req, res) {
 
             Please provide a JSON representation of this invoice using the following format:
 
-            documents = {idImport: { type: String, required: true },
-                dateImport: { type: Date, required: true },
-                    numDoc: { type: String, required: true },
-                    dateCreation: { type: Date, required: true },     
-                    dateEcheance: { type: Date, required: false },    
-                    montantHT: { type: Number, required: true },    
-                    montantTTC: { type: Number, required: true },     
-                    montantTVA: { type: Number, required: false },    
-                    remise: { type: Number, required: false },     
-                    statut: { type: String, required: true, enum: [en_cours, validé, payé, confirmé] },     
-                    commentaire: { type: String, required: false },    
-                    modePaiement: { type: String, required: false },    
-                    datePaiement: { type: Date, required: false },    
-                    adresse: { type: String, required: false },     
-                    source: { type: String, required: false },}
-
-            Please return only the JSON object.
+            documents ={
+                logoUrl: "string", // URL to the logo image
+                date: "string", // Date of the invoice
+                invoiceNumber: "string", // Invoice number
+                supplier: {
+                  companyName: "string", // Name of the supplier company
+                  number: "string", // Supplier number
+                  vat: "string", // Supplier VAT number
+                  address: "string", // Supplier address
+                  city: "string", // Supplier city
+                  postalCode: "string", // Supplier postal code
+                  country: "string", // Supplier country
+                },
+                customer: {
+                  companyName: "string", // Name of the customer company
+                  number: "string", // Customer number
+                  vat: "string", // Customer VAT number
+                  address: "string", // Customer address
+                  city: "string", // Customer city
+                  postalCode: "string", // Customer postal code
+                  country: "string", // Customer country
+                },
+                items: [
+                  {
+                    description: "string", // Description of the item
+                    price: "number", // Price of the item
+                    quantity: "number", // Quantity of the item
+                    vat: "number", // VAT percentage of the item
+                    subtotal: "number", // Subtotal of the item
+                    total: "number", // Total of the item
+                  },
+                  // Additional items...
+                ],
+                netTotal: "number", // Net total of the invoice
+                vatTotal: "number", // VAT total of the invoice
+                total: "number", // Total amount of the invoice
+                paymentDetails: {
+                  bankName: "string", // Bank name
+                  sortCode: "string", // Sort code
+                  accountNumber: "string", // Account number
+                  reference: "string", // Payment reference
+                },
+                notes: "string", // Additional notes
+              }; 
+            Please return only the JSON object don't return any unformatted text or empty values you can put a placeholder .
              `; 
         let counter = 0;
         let MaxRetries = 3;
@@ -189,26 +263,17 @@ async function upload(req, res) {
         while (repert) {
             
             try{
-                console.log('===================================')
-                console.log("prompt:", prompt);
-                console.log('===================================')
-
-                const AIObeject =  await generateText(prompt);
-                console.log("++++++++++++++++++++++++++++++")
-                console.log("AIObeject:", AIObeject);
+                                const AIObeject =  await generateText(prompt);
                 let AIjson = extractJSON(AIObeject);
-                console.log("++++++++++++++++++++++++++++++")
                 console.log('AIjson :' , AIjson[0]);
                 let document = new Documents(AIjson[0]);
-                document.dateCreation = Date.now()
-                document.dateImport = Date.now()
+                
 
     
-                console.log("++++++++++++++++++++++++++++++")
-                console.log('document created ')
+               
                 repert = false 
                 // Send the OCR text back to the client
-                res.status(200).json({ text: document });
+                res.status(200).json({Facture: AIjson[0] });
             } catch(error) {
                 if (counter < MaxRetries){
                     console.log("Error in generateText:", error);
