@@ -1,11 +1,13 @@
 
 const Client = require("../models/clientModel");
-
-
+const nodemailer = require('nodemailer')
 
 const createClient = async(req,res) => {
     const {  type, civilite,name, prenom,adresse,suite_adresse,pays,email, téléphone,nom_societe,siret, tva,contact } = req.body;
+   console.log('aaaaa')
     try{
+       const  password = generateStrongPassword(8);
+       console.log('pass',password);
          const newClient = new Client({
             type,
             civilite ,
@@ -20,19 +22,60 @@ const createClient = async(req,res) => {
             nom_societe,
             siret,
             tva,
-            contact
-         });
-        
+            contact,
+            password : password  }
+         )        
          
          await newClient.save();
-
+         const mailOptions = {
+            from: 'mahboulirahma0@gmail.com',
+            to: newClient.email,
+            subject: "Invitation",
+            html: `
+              <p>${newClient.password}</p>
+          
+            
+              `
+          };
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error(error);
+              return res.json({ error: "An error occurred while sending the email" });
+            } else {
+              console.log('Email sent: ' + info.response);
+              return res.json({ msg: 'The invitation has been sent by email' });
+            }
+          });
+      
+          console.log('clienttt',newClient);
          return res.status(201).json({newClient});
+        
     }
     catch(err){
         return res.status(500).json({ success: false, message: err.message });
     }
 };
-
+const generateStrongPassword = (length) => {
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+    let password = "";
+  
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charset.length);
+      password += charset[randomIndex];
+    }
+    
+    return password;
+  };
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'mahboulirahma0@gmail.com',
+      pass: 'tdoszfkwzphjrmmo'
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
 
 const getAllClient = async (req,res) => {
     try{
@@ -85,4 +128,4 @@ const updateClient = async (req, res) => {
 
 
 
-module.exports = {getAllClient ,getClientById ,createClient ,deleteClient,updateClient};
+module.exports = {generateStrongPassword,transporter ,getAllClient ,getClientById ,createClient ,deleteClient,updateClient};
