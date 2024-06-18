@@ -53,7 +53,7 @@ app.use(cors({
 mongoose.Promise = global.Promise;
 
 
-mongoose.connect("mongodb://localhost:27017/Factugen")
+mongoose.connect(process.env.db_name)
   .then(() => {
     console.log("DB connected");
   })
