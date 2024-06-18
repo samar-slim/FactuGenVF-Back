@@ -56,7 +56,8 @@ async function signUp(req, res) {
         notifications: true,
         confidentialite: 'public',
       },
-    });
+      
+    });console.log("account----------------",newaccount);
     try{
       await newUser.save();
     }catch (error) {
