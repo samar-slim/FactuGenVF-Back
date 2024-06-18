@@ -25,8 +25,11 @@ const createClient = async(req,res) => {
             contact,
             password : password  }
          )        
-         
+         console.log (newClient);
+         try{
          await newClient.save();
+        }catch (error) {
+          console.error(error);}
          const mailOptions = {
             from: 'mahboulirahma0@gmail.com',
             to: newClient.email,
