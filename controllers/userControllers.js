@@ -55,16 +55,16 @@ const getAllUsers = async (req,res) => {
     }
 };
 
-
-const getUserById =async(req,res) => {
-    const id =req.params.userId;
-    try{
-    const user = await User.findById(id);
-    return res.json(user);
-}catch (err) {
-    return res.json(err);
-}
-};
+const getUserById = async (req, res) => {
+    const id = req.params.userId;
+    try {
+      const user = await User.findById(id);
+      return res.json(user);
+    } catch (err) {
+      return res.json(err);
+    }
+  };
+  
 const deleteUser = async(req,res) => {
     const id = req.params.userId ;
     try{

@@ -113,6 +113,7 @@ app.use('/api/devis', devisRoute);
 app.use('/api/facture', factureRoute);
 app.use('/api/client', clientRouter);
 app.use('/api/produits', produitRoutes);
+app.use('/api/categories', categorieRoute);
 app.use('/api/account', checkAuth, account);
 app.use('/api/ai', AIRoutes);
 //app.use('/api/admindashbord',checkAuth,  adminCheck ,dashbord);

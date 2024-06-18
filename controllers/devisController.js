@@ -3,14 +3,7 @@ const Devis = require('../models/devisModel');
 const shortid = require('shortid');
 const createdevis = async (req, res) => {
     const {
-        nom_entreprise,
-        num,
-        code_postal,
-        ville,
-        email,
-        num_tel,
-        num_siret,
-        num_tva,
+        
         date_emission,
         date_expiration,
         inter,
@@ -31,10 +24,11 @@ const createdevis = async (req, res) => {
         prix,
         prix_unitaire,
         reference,
+        userId,
 
         tva,
         quantity,
-        imageUrl
+        imageUrl,
         
 
     } = req.body;
@@ -155,15 +149,29 @@ const genererLienPartage = async (req, res) => {
       res.status(500).json({ message: 'Erreur lors de la génération du lien de partage' });
     }
   }
-
-const updatedevis = async (req, res) => {
+  const updatedevis = async (req, res) => {
     const id = req.params.devisId;
     const data = req.body;
+
     try {
-        const updatedevis = await Devis.findByIdAndUpdate(id, data, { new: true });
-        return res.json(updatedevis);
+        // Vérifier si le devis existe
+        const existingDevis = await Devis.findById(id);
+        if (!existingDevis) {
+            return res.status(404).json({ error: 'Devis non trouvé' });
+        }
+
+        // Mettre à jour les champs du devis avec les nouvelles données
+        existingDevis.devis.date_emission = data.devis.date_emission;
+        existingDevis.devis.date_expiration = data.devis.date_expiration;
+        existingDevis.devis.numDevis = data.devis.numDevis;
+        existingDevis.devis.titre = data.devis.titre;
+        // Mettre à jour d'autres champs si nécessaire
+console.log('rr', existingDevis.devis.date_expiration)
+        const updatedDevis = await existingDevis.save(existingDevis);
+        return res.json(updatedDevis);
     } catch (err) {
-        return res.json(err);
+        console.error(err);
+        return res.status(500).json({ error: 'Une erreur est survenue lors de la mise à jour du devis' });
     }
 };
 const deleteDevis = async (req, res) => {

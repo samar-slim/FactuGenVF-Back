@@ -3,7 +3,7 @@ const Produit = require("../models/produitModel");
 
 
 const createproduit = async(req, res) => {
-    const { imageUrl, nom_article, description, prix, prix_unitaire, categorie, reference, tva, type_unité, type } = req.body;
+    const { imageUrl, nom_article, description, prix, prix_unitaire, categorieId, reference, tva, type_unité, type } = req.body;
     try {
         console.log(req.body)
         const newProduit = new Produit({
@@ -12,11 +12,12 @@ const createproduit = async(req, res) => {
             prix,
             prix_unitaire,
             tva,
-            categorie,
+
             reference,
             type_unité,
             imageUrl,
-            type // Ajout du champ type ici
+            type ,
+            categorieId,
         });
         await newProduit.save();
         console.log('prod',newProduit)
