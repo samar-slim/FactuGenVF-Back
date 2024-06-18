@@ -53,7 +53,7 @@ app.use(cors({
 mongoose.Promise = global.Promise;
 
 
-mongoose.connect("mongodb+srv://salemhellal2:fja35uRnkwRnv3rt@cluster0.ebyqq2o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect("mongodb+srv://samarslim64:s24042002@cluster0.ogzjsac.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
   .then(() => {
     console.log("DB connected");
   })
