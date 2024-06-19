@@ -1,6 +1,7 @@
 const User = require("./models/userModel");
 const Account = require("./models/accountModel");
 const bcrypt = require("bcrypt");
+const Config = require('./models/configModel')
 
 const mongoose = require('mongoose');
 const Template = require('./models/templateModel');
@@ -90,6 +91,15 @@ async function seedDatabase() {
     } else {
       console.log('Account already exists:', account);
     }
+
+    const defaultConfig = { backupTime: "0 0 * * *" };
+    await Config.findOneAndUpdate(
+            {}, // No filter, so it matches any document
+            defaultConfig,
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
+    console.log('Config created:', defaultConfig);
+    
   } catch (error) {
     console.error('Error seeding database:', error);
   }

@@ -30,6 +30,9 @@ let checkAuth = require('./middelewares/authMidleware');
 let adminCheck = require('./middelewares/adminCheckmidleware');
 let logRequest = require('./middelewares/activityMidleware');
 var audit = require('express-requests-logger');
+const { backupData } = require('./controllers/backupController');
+
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -124,6 +127,12 @@ async function startServer() {
     app.use('/api/template', template);
 
     // cron.schedule('*/1 * * * *', dataCron);
+    const collection = ["user" ]//, "facture", "devis", "produit", "reclamation", "account", "template" , "historiqueActivite", "document"];
+    cron.schedule(  process.env.backupTime, async () => {
+      console.log('Cron job started');
+      await backupData(collection);
+      console.log('Cron job finished');
+    });
 
     const port = process.env.PORT || 5000;
     app.listen(port, () => {

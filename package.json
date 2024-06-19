@@ -19,6 +19,8 @@
     "express-requests-logger": "^4.0.0",
     "express-validator": "^7.0.1",
     "fs": "^0.0.1-security",
+    "fs-extar": "^0.0.1-security",
+    "fs-extra": "^11.2.0",
     "googleapis": "^137.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb-backup": "^1.6.9",
