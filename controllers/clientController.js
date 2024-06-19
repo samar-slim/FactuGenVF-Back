@@ -1,111 +1,159 @@
-
 const Client = require("../models/clientModel");
 const Facture = require("../models/factureModel");
 const Devis = require("../models/devisModel")
 const nodemailer = require('nodemailer')
+const User = require("../models/userModel"); // Make sure to require your User model
+const Account = require("../models/accountModel"); // Make sure to require your Account model
 
-const createClient = async(req,res) => {
-    const {  type, civilite,name, prenom,adresse,suite_adresse,pays,email, téléphone,nom_societe,siret, tva,contact } = req.body;
-   console.log('aaaaa')
-    try{
-       const  password = generateStrongPassword(8);
-       console.log('pass',password);
-         const newClient = new Client({
-            type,
-            civilite ,
-            name,
-            prenom,
-            adresse,
-            suite_adresse,
-            pays,
-            email,
-            téléphone,
-           
-            nom_societe,
-            siret,
-            tva,
-            contact,
-            password : password  }
-         )        
-         
-         await newClient.save();
-         const mailOptions = {
-            from: 'mahboulirahma0@gmail.com',
-            to: newClient.email,
-            subject: "Invitation",
-            html: `
-              <p>${newClient.password}</p>
-          
-            
-              `
-          };
-          transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-              console.error(error);
-              return res.json({ error: "An error occurred while sending the email" });
-            } else {
-              console.log('Email sent: ' + info.response);
-              return res.json({ msg: 'The invitation has been sent by email' });
-            }
-          });
-      
-          console.log('clienttt',newClient);
-         return res.status(201).json({newClient});
-        
-    }
-    catch(err){
-        return res.status(500).json({ success: false, message: err.message });
-    }
-};
-const generateStrongPassword = (length) => {
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-    let password = "";
-  
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * charset.length);
-      password += charset[randomIndex];
-    }
+const { signUp } = require("./authController");
+
+const createClient = async (req, res) => {
+  const { type, civilite, name, prenom, adresse, suite_adresse, pays, email, telephone, nom_societe, siret, tva, contact } = req.body;
+
+  console.log('aaaaa');
+  try {
+    const password = generateStrongPassword(8);
+    console.log('pass', password);
+
+    const newClient = new Client({
+      type,
+      civilite,
+      name,
+      prenom,
+      adresse,
+      suite_adresse,
+      pays,
+      email,
+      telephone,
+      nom_societe,
+      siret,
+      tva,
+      contact,
+      password: password
+    });
+    console.log('newClient', newClient);
+
+    const newUser = new User({
+      nom: name,
+      prenom,
+      email,
+      telephone,
+      pays,
+      ville: adresse, // Assuming "ville" should be part of "adresse"
+      adresse,
+      contact,
+      type: "client",
+    });
     
-    return password;
-  };
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'mahboulirahma0@gmail.com',
-      pass: 'tdoszfkwzphjrmmo'
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
 
-const getAllClient = async (req,res) => {
-    try{
-        const Clients = await Client.find()
-        return res.status(200).json(Clients);
-
-
-    }catch(error){
-        return res.status(500).json({ success :false , message: error.message})
+    try {
+      await newUser.save();
+      console.log("newUser", newUser);
+    } catch (error) {
+      console.error('Error saving user:', error);
+      return res.status(500).json({ success: false, message: 'Error saving user: ' + error.message });
     }
+
+    const newAccount = new Account({
+      user: newUser._id,
+      accountIdentifier: email, 
+      accountType: "free", 
+      password,
+      dateInscription: Date.now(),
+      statut: 'active',
+      parametresDuaccount: {
+        notifications: true,
+        confidentialite: 'public',
+      },
+    });
+    console.log("newAccount", newAccount);
+
+    try {
+      await newAccount.save();
+    } catch (error) {
+      console.error('Error saving account:', error);
+      return res.status(500).json({ success: false, message: 'Error saving account: ' + error.message });
+    }
+
+    try {
+      await newClient.save();
+    } catch (error) {
+      console.error('Error saving client:', error);
+      return res.status(500).json({ success: false, message: 'Error saving client: ' + error.message });
+    }
+
+    const mailOptions = {
+      from: 'mahboulirahma0@gmail.com',
+      to: newClient.email,
+      subject: "Invitation",
+      html: `<p>${newClient.password}</p>`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.json({ error: "An error occurred while sending the email" });
+      } else {
+        console.log('Email sent: ' + info.response);
+        return res.json({ msg: 'The invitation has been sent by email' });
+      }
+    });
+
+    console.log('clienttt', newClient);
+    return res.status(201).json({ newClient });
+
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
 };
 
+const generateStrongPassword = (length) => {
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+  let password = "";
 
-const getClientById = async (req,res) => {
-    const id = req.params.ClientId;
-    console.log('clientt',id)
-   
-    try{
-        const client = await Client.findById(id);
-        if (!client) {
-            return res.status(404).json({ message: "client non trouvé" });
-        }
-        
-        return res.json(client);
-    } catch (err) { 
-        console.error('Erreur lors de la récupération du produit :', err);
-        return res.status(500).json({ message: "Erreur serveur lors de la récupération du produit" });
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset[randomIndex];
+  }
+
+  return password;
+};
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'mahboulirahma0@gmail.com',
+    pass: 'tdoszfkwzphjrmmo'
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
+const getAllClient = async (req, res) => {
+  try {
+    const clients = await Client.find();
+    return res.status(200).json(clients);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getClientById = async (req, res) => {
+  const id = req.params.clientId;
+  console.log('client', id);
+
+  try {
+    const client = await Client.findById(id);
+    if (!client) {
+      return res.status(404).json({ message: "Client non trouvé" });
     }
+
+    return res.json(client);
+  } catch (err) {
+    console.error('Erreur lors de la récupération du client :', err);
+    return res.status(500).json({ message: "Erreur serveur lors de la récupération du client" });
+  }
 };
 const deleteClient = async (req, res) => {
   const clientId = req.params.clientId;
@@ -134,19 +182,19 @@ const deleteClient = async (req, res) => {
     console.error(err);
     return res.status(500).json({ message: "Erreur lors de la suppression du client" });
   }
+
 };
+
 const updateClient = async (req, res) => {
-    try {
-        const updatedClient = await Client.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedClient) {
-          return res.status(404).json({ message: 'Client not found' });
-        }
-        res.json(updatedClient);
-      } catch (err) {
-        res.status(400).json({ message: err.message });
-      }
-    };
+  try {
+    const updatedClient = await Client.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updatedClient) {
+      return res.status(404).json({ message: 'Client not found' });
+    }
+    res.json(updatedClient);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
 
-
-
-module.exports = {generateStrongPassword,transporter ,getAllClient ,getClientById ,createClient ,deleteClient,updateClient};
+module.exports = { generateStrongPassword, transporter, getAllClient, getClientById, createClient, deleteClient, updateClient };

@@ -1,44 +1,38 @@
 const mongoose = require("mongoose");
-const { Schema, Types } = mongoose;
+const { Schema } = mongoose;
 
-const FactureSchema = new Schema({
-  facture:{
-  nom_entreprise: { type: String },
-  num: { type: String },
-  code_postal: { type: String },
-  ville: { type: String },
-  email: { type: String },
-  num_tel: { type: String },
-  num_siret: { type: String },
-  num_tva: { type: String },
+const FactureSchema = new Schema(
+  { facture:{
+ 
   inter: { type: String },
   deleg: { type: String },
   titre: { type: String },
   numfacture: { type: String },
   remarque: { type: String },
-  remise: { type: String },
+  remise: { type: Number },
   condition: { type: String },
   paiement: { type: String },
-  clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'client' },
-  produitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Produit' },
-  totalHT: { type: String },
-  totalTTC: { type: String },
+  userId: { type: Schema.Types.ObjectId, ref: 'User' },
+  clientId: { type: Schema.Types.ObjectId, ref: 'client' },
+  produitId: { type: Schema.Types.ObjectId, ref: 'Produit' },
+  totalHT: { type: Number },
+  totalTTC: { type: Number },
   imageUrl: { type: String },
-  date_expiration: { type: String },
-  date_emission: { type: String },
+  date_expiration: { type: Date },
+  date_emission: { type: Date },
   status: {
     type: String,
     default: 'cours', // 'actif' ou 'annulé'
-  },}, 
+  }},
   produitsSelectionnes: [{
-    total: { type: String },
+    total: { type: Number },
     nom_article: { type: String },
     description: { type: String },
-    prix: { type: String },
-    prix_unitaire: { type: String },
+    prix: { type: Number },
+    prix_unitaire: { type: Number },
     reference: { type: String },
-    tva: { type: String },
-    quantity: { type: String },
+    tva: { type: Number },
+    quantity: { type: Number },
   }]
 });
 

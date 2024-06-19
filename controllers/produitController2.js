@@ -52,7 +52,7 @@ const getproduitById =async(req,res) => {
 const deleteproduit = async(req,res) => {
     const id = req.params.produitId ;
     try{
-        const  deleteproduit = await produit.findByIdAndDelete(id);
+        const  deleteproduit = await Produit.findByIdAndDelete(id);
         return res.json(deleteUser);
     }catch(err){
         return res.json(err)
@@ -62,7 +62,7 @@ const updateproduit= async(req, res) => {
     const id = req.params.produitId;
     const data = req.body;
     try {
-        const updateproduit = await User.findByIdAndUpdate(id, data, { new: true });
+        const updateproduit = await Produit.findByIdAndUpdate(id, data, { new: true });
         return res.json(updateproduit);
     } catch (err) {
         return res.json(err);
