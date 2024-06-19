@@ -5,7 +5,7 @@ const { getAllClient,  getClientById, createClient, deleteClient, updateClient }
 
 router.post("/add", createClient);
 router.get("/", getAllClient);
-router.get("/:ClientId", getClientById);
+router.get("/:clientId", getClientById);
 
 router.delete("/:clientId",deleteClient);
 router.put("/:id", updateClient);

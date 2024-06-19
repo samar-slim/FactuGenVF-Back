@@ -7,6 +7,7 @@ const produitRoutes = require('./routes/produitRoute');
 const factureRoute = require('./routes/factureRoute');
 const devisRoute = require('./routes/devisRoute');
 const imageRoutes = require('./routes/imageRoutes');
+const Facture = require('./models/factureModel');
 const avoirRoute = require('./routes/avoirRoute');
 const categorieRoute = require('./routes/catgoryRoutes');
 const reclamationRoutes = require('./routes/reclamationRoute');
@@ -59,6 +60,58 @@ mongoose.connect(process.env.db_name)
   })
   .catch((err) => {
     console.log("DB connection failed with - ", err);
+  });
+  app.post('/api/save-signature', upload.single('signature'), async (req, res) => {
+    try {
+      const factureId = req.query.factureId;
+      const signatureFile = req.file;
+  
+      console.log('Facture ID:', factureId);
+      console.log('Signature File:', signatureFile);
+  
+      if (!factureId) {
+        return res.status(400).json({ error: 'Facture ID not provided' });
+      }
+  
+      if (!signatureFile) {
+        return res.status(400).json({ error: 'No signature file provided' });
+      }
+  
+      const facture = await Facture.findById(factureId);
+      if (facture) {
+        facture.facture.signatureUrl = '/uploads/' + signatureFile.filename;
+        await facture.save();
+        console.log('Signature URL saved successfully:', facture.signatureUrl);
+        res.json({ message: 'Signature URL saved successfully', signatureUrl: facture.signatureUrl });
+      } else {
+        res.status(404).json({ error: 'Facture not found' });
+      }
+    } catch (err) {
+      console.error('Error updating facture with signature URL:', err);
+      res.status(500).json({ error: 'Failed to update facture with signature URL' });
+    }
+  });
+  
+  // Route pour mettre à jour la facture avec l'URL de la signature
+  app.put('/api/factures/:id', async (req, res) => {
+    try {
+      const factureId = req.params.id;
+      const updatedFacture = req.body;
+  
+      console.log('Facture ID:', factureId);
+      console.log('Updated Facture:', updatedFacture);
+  
+      const facture = await Facture.findByIdAndUpdate(factureId, updatedFacture, { new: true });
+      if (facture) {
+        console.log('Facture updated successfully:', facture);
+        res.json({ message: 'Facture updated successfully', facture });
+      } else {
+        res.status(404).json({ error: 'Facture not found' });
+      }
+    } catch (err) {
+      console.error('Error updating facture:', err);
+      res.status(500).json({ error: 'Failed to update facture' });
+    }
   });
 
 

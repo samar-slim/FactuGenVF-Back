@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const FactureSchema = new Schema(
   { facture:{
- 
+    signatureUrl:{ type: String },
   inter: { type: String },
   deleg: { type: String },
   titre: { type: String },

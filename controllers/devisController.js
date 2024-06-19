@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Devis = require('../models/devisModel');
+const Client = require('../models/clientModel')
 const shortid = require('shortid');
 const createdevis = async (req, res) => {
     const {
@@ -81,32 +82,31 @@ const getAlldevis = async (req,res) => {
 const getClientDevis = async (req, res) => {
   try {
     const clientId = req.query.clientId;
-    console.log('Client ID:', clientId);
 
-    if (!mongoose.Types.ObjectId.isValid(clientId)) {
-      return res.status(400).json({ message: 'Invalid client ID' });
+    if (clientId) {
+      // Rechercher le client par son ID
+      const client = await Client.findById(clientId);
+      console.log('client',client);
+
+      if (client) {
+        // Rechercher les devis associés au client
+        const devis = await Devis.find({ 'devis.devis.clientId': clientId })
+          
+
+        const devisFiltres = devis.filter(devis => devis.devis.clientId === clientId);
+
+        // Retourner les devis filtrés
+        res.json(devisFiltres);
+      } else {
+        res.status(404).json({ message: 'Client non trouvé' });
+      }
+    } else {
+      res.status(400).json({ message: 'Aucun clientId fourni' });
     }
-
-    const clientDevis = await Devis.aggregate([
-      { $match: { clientId: mongoose.Types.ObjectId(clientId) } },
-      // Ajoutez d'autres étapes de l'agrégation si nécessaire
-    ]);
-
-    console.log({ x: clientDevis });
-
-    if (clientDevis.length === 0) {
-      return res.status(404).json({ message: 'No quotes found for this client' });
-    }
-
-    res.json(clientDevis);
   } catch (error) {
-    console.error('Erreur lors de la récupération des devis associés au client :', error.message);
-    res.status(500).json({ message: 'Erreur lors de la récupération des devis' });
+    res.status(500).json({ message: error.message });
   }
 };
-
-
-
 const getdevisById =async(req,res) => {
     const id =req.params.devisId;
     

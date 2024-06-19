@@ -10,7 +10,7 @@ router.post("/add", upload.single("image"), createdevis
 
 // Autres routes
 router.get("/", getAlldevis);
-router.get("/client", getClientDevis);
+router.get("/:client", getClientDevis);
 router.get("/showDevis/:devisId", getdevisById);
 router.put("/:devisId", updatedevis); // Corrigez le chemin de la route
 router.delete("/:devisId",deleteDevis);
