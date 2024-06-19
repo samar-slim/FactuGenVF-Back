@@ -15,7 +15,7 @@ const Client = new Schema({
   Suite_adresse:String,
   pays:String,
   email: String,
-  téléphone: String,
+  telephone: String,
   // Champs spécifiques pour les clients professionel
   nom_societe: String,
   siret: String,

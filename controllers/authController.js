@@ -56,7 +56,8 @@ async function signUp(req, res) {
         notifications: true,
         confidentialite: 'public',
       },
-    });
+      
+    });console.log("account----------------",newaccount);
     try{
       await newUser.save();
     }catch (error) {
@@ -129,6 +130,7 @@ const login = async (req, res) => {
       adresse : user.adresse,
       contact : user.contact,
       type : user.type,
+      userId: user.id,
       accountId : account._id,
     }
     /*{
