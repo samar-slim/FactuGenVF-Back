@@ -2,14 +2,7 @@ const mongoose= require("mongoose");
 const { Schema,Types } = mongoose;
 
 const devisModel = new Schema({
-  devis :{ nom_entreprise: { type: String }, 
-  num: { type: String}, 
-  code_postal: { type: String}, 
-  ville: { type: String  }, 
-  email: { type: String }, 
-  num_tel: { type: String },
-  num_siret: { type: String }, 
-  num_tva: { type: String }, 
+  devis :{ 
   inter: { type: String }, 
   deleg: { type: String }, 
   titre: { type: String },
@@ -20,6 +13,7 @@ const devisModel = new Schema({
   condition: { type: String }, 
   paiement: { type: String }, 
   clientId:  {type:mongoose.Schema.Types.ObjectId,ref:'client'},
+  userId:  {type:mongoose.Schema.Types.ObjectId,ref:'User'},
   produitId:  {type:mongoose.Schema.Types.ObjectId,ref:'Produit'}, 
   totalHT: { type: String }, 
   totalTTC: { type: String }, 

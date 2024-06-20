@@ -57,12 +57,18 @@ app.use(cors({
 
 mongoose.Promise = global.Promise;
 
+
 async function startServer() {
   try {
     await mongoose.connect(process.env.db_name, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
+=======
+
+mongoose.connect(process.env.db_name)
+  .then(() => {
+
     console.log("DB connected");
 
     // Seed the database
@@ -144,7 +150,31 @@ async function startServer() {
   }
 }
 
+
 startServer();
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use('/api/auth', logRequest ,auth);
+app.use('/api/backup', backupRoute);
+//app.use('/api/categories', categorieRoute);
+app.use('/api/', avoirRoute);
+app.use('/api/images', imageRoutes);
+app.use('/api/users',logRequest, userroutes);
+app.use('/api/devis', devisRoute);
+app.use('/api/facture', factureRoute);
+app.use('/api/client', clientRouter);
+app.use('/api/produits', produitRoutes);
+app.use('/api/categories', categorieRoute);
+app.use('/api/account', checkAuth, account);
+app.use('/api/ai', AIRoutes);
+//app.use('/api/admindashbord',checkAuth,  adminCheck ,dashbord);
+app.use('/api/reclamation', checkAuth, reclamationRoutes);
+app.use('/api/admindashbord' ,dashbord);
+
+//cron.schedule('*/1 * * * *', dataCron);
+
+
 
 // Mock functions for text processing and invoice generation
 function processText(text) {

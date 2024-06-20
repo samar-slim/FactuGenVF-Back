@@ -56,7 +56,8 @@ async function signUp(req, res) {
         notifications: true,
         confidentialite: 'public',
       },
-    });
+      
+    });console.log("account----------------",newaccount);
     try{
       await newUser.save();
     }catch (error) {
@@ -129,6 +130,7 @@ const login = async (req, res) => {
       adresse : user.adresse,
       contact : user.contact,
       type : user.type,
+      userId: user.id,
       accountId : account._id,
     }
     /*{
@@ -263,17 +265,17 @@ const resetPassword = async (req, res) => {
 
 /* change password */
 const changePassword = async (req, res) => {
-  const accountId = req.parms.accountId; // Assuming req.user contains the authenticated user's information
+  const accountId = req.params.accountId; // Assuming req.user contains the authenticated user's information
   const { currentPassword, newPassword } = req.body;
 
   try {
     // Fetch the user by ID
     const account = await Account.findById(accountId);
 
-    if (!Account) {
+    if (!account) {
       return res.status(404).json({ message: 'account not found' });
     }
-
+ 
     // Compare the provided current password with the stored hashed password
     const isMatch = await bcrypt.compare(currentPassword, account.password);
     if (!isMatch) {
@@ -285,7 +287,7 @@ const changePassword = async (req, res) => {
 
     // Update the user's password
     account.password = hashedPassword;
-    await user.save();
+    await account.save();
 
     // Respond with success
     res.status(200).json({ message: 'Password changed successfully' });
