@@ -4,16 +4,7 @@ const Client =require('../models/clientModel')
 const shortid = require('shortid');
 const createfacture = async (req, res) => {
     const {
-        nom_entreprise,
-        num,
-        code_postal,
-        ville,
-        email,
-        num_tel,
-        num_siret,
-        num_tva,
-        date_emission,
-        date_expiration,
+        
         inter,
         deleg,
         titre,
@@ -32,25 +23,24 @@ const createfacture = async (req, res) => {
         prix,
         prix_unitaire,
         reference,
-
+        userId,
         tva,
         quantity,
         imageUrl,
-        status
+        status, 
+        date_expiration,
+        date_emission,
         
 
     } = req.body;
 
     try {
       console.log(req.body)
-        const nouvellefacture = new Facture(
-           req.body
-
-        );
+        const nouvellefacture = new Facture(req.body);
 
        await nouvellefacture.save();
-       console.log('facture :: ', nouvellefacture  );
-        res.status(201).json({ nouvellefacture });
+       console.log('facture :: ', nouvellefacture);
+        res.status(201).json(nouvellefacture); // Renvoyez l'objet facture créé directement
     } catch (err) {
      
         res.status(500).json({ success: false, message: 'Erreur lors de la création de la facture', error: err.message });

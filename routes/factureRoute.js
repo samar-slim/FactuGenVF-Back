@@ -6,7 +6,7 @@ const { getAllfacture,getClientFacture ,getfactureById, updatefacture, createfac
 
 // Route pour ajouter un facture avec téléchargement d'image
 //router.post("/add", upload.single("image"), createfacture);
-router.post("/", createfacture);
+router.post("/add", createfacture);
 // Autres routes
 router.get("/", getAllfacture);
 router.get("/client", getClientFacture)

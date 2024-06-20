@@ -1,16 +1,10 @@
 const mongoose = require('mongoose');
 const Devis = require('../models/devisModel');
+const Client = require('../models/clientModel')
 const shortid = require('shortid');
 const createdevis = async (req, res) => {
     const {
-        nom_entreprise,
-        num,
-        code_postal,
-        ville,
-        email,
-        num_tel,
-        num_siret,
-        num_tva,
+        
         date_emission,
         date_expiration,
         inter,
@@ -31,10 +25,11 @@ const createdevis = async (req, res) => {
         prix,
         prix_unitaire,
         reference,
+        userId,
 
         tva,
         quantity,
-        imageUrl
+        imageUrl,
         
 
     } = req.body;
@@ -86,33 +81,27 @@ const getAlldevis = async (req,res) => {
 };
 const getClientDevis = async (req, res) => {
   try {
-    const clientId = req.query.clientId;
-    console.log('Client ID:', clientId);
+    const clientId = req.params.clientId;
 
-    if (!mongoose.Types.ObjectId.isValid(clientId)) {
-      return res.status(400).json({ message: 'Invalid client ID' });
+    if (clientId) {
+      // Rechercher le client par son ID
+     
+        // Rechercher les devis associés au client
+        const devis = await Devis.find({ 'devis.devis.clientId': clientId })
+          
+
+        const devisFiltres = devis.filter(devis => devis.devis.clientId === clientId);
+
+        // Retourner les devis filtrés
+        res.json(devisFiltres);
+     
+    } else {
+      res.status(400).json({ message: 'Aucun clientId fourni' });
     }
-
-    const clientDevis = await Devis.aggregate([
-      { $match: { clientId: mongoose.Types.ObjectId(clientId) } },
-      // Ajoutez d'autres étapes de l'agrégation si nécessaire
-    ]);
-
-    console.log({ x: clientDevis });
-
-    if (clientDevis.length === 0) {
-      return res.status(404).json({ message: 'No quotes found for this client' });
-    }
-
-    res.json(clientDevis);
   } catch (error) {
-    console.error('Erreur lors de la récupération des devis associés au client :', error.message);
-    res.status(500).json({ message: 'Erreur lors de la récupération des devis' });
+    res.status(500).json({ message: error.message });
   }
 };
-
-
-
 const getdevisById =async(req,res) => {
     const id =req.params.devisId;
     
@@ -155,15 +144,29 @@ const genererLienPartage = async (req, res) => {
       res.status(500).json({ message: 'Erreur lors de la génération du lien de partage' });
     }
   }
-
-const updatedevis = async (req, res) => {
+  const updatedevis = async (req, res) => {
     const id = req.params.devisId;
     const data = req.body;
+
     try {
-        const updatedevis = await Devis.findByIdAndUpdate(id, data, { new: true });
-        return res.json(updatedevis);
+        // Vérifier si le devis existe
+        const existingDevis = await Devis.findById(id);
+        if (!existingDevis) {
+            return res.status(404).json({ error: 'Devis non trouvé' });
+        }
+
+        // Mettre à jour les champs du devis avec les nouvelles données
+        existingDevis.devis.date_emission = data.devis.date_emission;
+        existingDevis.devis.date_expiration = data.devis.date_expiration;
+        existingDevis.devis.numDevis = data.devis.numDevis;
+        existingDevis.devis.titre = data.devis.titre;
+        // Mettre à jour d'autres champs si nécessaire
+console.log('rr', existingDevis.devis.date_expiration)
+        const updatedDevis = await existingDevis.save(existingDevis);
+        return res.json(updatedDevis);
     } catch (err) {
-        return res.json(err);
+        console.error(err);
+        return res.status(500).json({ error: 'Une erreur est survenue lors de la mise à jour du devis' });
     }
 };
 const deleteDevis = async (req, res) => {

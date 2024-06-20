@@ -11,16 +11,17 @@ const Client = new Schema({
  civilite:String,
   name: String,
   prenom:String,  
-  Adresse:String,
-  Suite_adresse:String,
+  adresse:String,
+  suite_adresse:String,
   pays:String,
   email: String,
-  téléphone: String,
+  telephone: String,
   // Champs spécifiques pour les clients professionel
-  nom_societe:String,
-  siret:String,
-  tva:String,
-  contact:String,
+  nom_societe: String,
+  siret: String,
+  tva: String,
+  contact: String,
+  password: String,
   type: { type: String, enum: ["particulier", "professionnel"], default: 'particulier'  } 
 
   });
