@@ -81,14 +81,11 @@ const getAlldevis = async (req,res) => {
 };
 const getClientDevis = async (req, res) => {
   try {
-    const clientId = req.query.clientId;
+    const clientId = req.params.clientId;
 
     if (clientId) {
       // Rechercher le client par son ID
-      const client = await Client.findById(clientId);
-      console.log('client',client);
-
-      if (client) {
+     
         // Rechercher les devis associés au client
         const devis = await Devis.find({ 'devis.devis.clientId': clientId })
           
@@ -97,9 +94,7 @@ const getClientDevis = async (req, res) => {
 
         // Retourner les devis filtrés
         res.json(devisFiltres);
-      } else {
-        res.status(404).json({ message: 'Client non trouvé' });
-      }
+     
     } else {
       res.status(400).json({ message: 'Aucun clientId fourni' });
     }
