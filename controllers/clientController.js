@@ -1,7 +1,10 @@
 const Client = require("../models/clientModel");
+const Facture = require("../models/factureModel");
+const Devis = require("../models/devisModel")
+const nodemailer = require('nodemailer')
 const User = require("../models/userModel"); // Make sure to require your User model
 const Account = require("../models/accountModel"); // Make sure to require your Account model
-const nodemailer = require('nodemailer');
+
 const { signUp } = require("./authController");
 
 const createClient = async (req, res) => {
@@ -152,15 +155,34 @@ const getClientById = async (req, res) => {
     return res.status(500).json({ message: "Erreur serveur lors de la récupération du client" });
   }
 };
-
 const deleteClient = async (req, res) => {
-  const id = req.params.clientId;
+  const clientId = req.params.clientId;
+
   try {
-    const deleteClient = await Client.findByIdAndDelete(id);
-    return res.json(deleteClient);
+    // Vérifier si le client a des factures associées
+    const factures = await Facture.find({ client: clientId });
+    if (factures.length > 0) {
+      return res.status(400).json({ message: "Le client ne peut pas être supprimé car il a des factures associées." });
+    }
+
+    // Vérifier si le client a des devis associés
+    const devis = await Devis.find({ client: clientId });
+    if (devis.length > 0) {
+      return res.status(400).json({ message: "Le client ne peut pas être supprimé car il a des devis associés." });
+    }
+
+    // Si aucune facture ni devis associé, supprimer le client
+    const deletedClient = await Client.findByIdAndDelete(clientId);
+    if (!deletedClient) {
+      return res.status(404).json({ message: "Client non trouvé" });
+    }
+
+    return res.json({ message: "Client supprimé avec succès" });
   } catch (err) {
-    return res.json(err);
+    console.error(err);
+    return res.status(500).json({ message: "Erreur lors de la suppression du client" });
   }
+
 };
 
 const updateClient = async (req, res) => {
