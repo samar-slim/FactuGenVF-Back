@@ -31,6 +31,7 @@ let adminCheck = require('./middelewares/adminCheckmidleware');
 let logRequest = require('./middelewares/activityMidleware');
 var audit = require('express-requests-logger');
 const { backupData } = require('./controllers/backupController');
+const { userData } = require('./controllers/dataController');
 
 
 
@@ -122,17 +123,20 @@ async function startServer() {
     app.use('/api/produits', produitRoutes);
     app.use('/api/account', checkAuth, account);
     app.use('/api/ai', AIRoutes);
-    app.use('/api/admindashbord', checkAuth, adminCheck, dashbord);
+    app.use('/api/admindashbord', dashbord);
     app.use('/api/reclamation', checkAuth, reclamationRoutes);
     app.use('/api/template', template);
 
     // cron.schedule('*/1 * * * *', dataCron);
-    const collection = ["user" ]//, "facture", "devis", "produit", "reclamation", "account", "template" , "historiqueActivite", "document"];
+    const collection = ["user" , "facture", "devis", "produit", "reclamation", "account", "template" , "historiqueActivite", "document"];
     cron.schedule(  process.env.backupTime, async () => {
       console.log('Cron job started');
       await backupData(collection);
       console.log('Cron job finished');
     });
+
+    setInterval( userData, 24 * 60   *60 * 1000);
+
 
     const port = process.env.PORT || 5000;
     app.listen(port, () => {
