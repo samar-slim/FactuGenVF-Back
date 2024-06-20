@@ -8,7 +8,7 @@ router.post("/add", upload.single('image'), createproduit);
 router.get("/", getAllproduit);
 router.get("/:produitId",getProduitById);
 router.delete("/:produitId",deleteproduit);
-router.put(":produitId",updateproduit);
+router.put("/:id",updateproduit);
 router.get("/type/:type", getProduitsParType);
 
 module.exports = router;
