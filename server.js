@@ -47,10 +47,12 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
 app.get('/file/*', (req, res) => {
   const filePath = req.params[0];
   res.sendFile(filePath, { root: '/' });
 });
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -172,6 +174,7 @@ async function startServer() {
     // Seed the database
     await seedDatabase();
     console.log('Database seeding completed');
+
 
     // Routes and other middleware
     app.post('/api/extract-text', upload.single('file'), async (req, res) => {
