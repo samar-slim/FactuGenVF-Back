@@ -102,6 +102,17 @@ const getAllfacture = async (req,res) => {
         return res.status(500).json({ success :false , message: error.message})
     }
 };
+const getFactureCount = async (req, res) => {
+  try {
+    const countFacture = await Facture.countDocuments();
+    
+    res.json({ count: countFacture });
+  } catch (error) {
+    console.error('Erreur lors du comptage des devis :', error);
+    res.status(500).json({ message: 'Erreur lors du comptage des devis' });
+  }
+};
+
 
 
 const getfactureById =async(req,res) => {
@@ -171,4 +182,4 @@ const deletefacture = async (req, res) => {
 };
 
 
-module.exports = {getClientFacture,genererLienPartage,uploadImage, getAllfacture ,getfactureById ,createfacture ,updatefacture,deletefacture}
+module.exports = {getClientFacture,getFactureCount,genererLienPartage,uploadImage, getAllfacture ,getfactureById ,createfacture ,updatefacture,deletefacture}

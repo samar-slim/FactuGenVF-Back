@@ -138,21 +138,29 @@ const getAllClient = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
+// Exemple dans clientController.js
 const getClientById = async (req, res) => {
-  const id = req.params.clientId;
-  console.log('client', id);
+  const clientId = req.params.id; // Assurez-vous que req.params.id est correctement défini
 
   try {
-    const client = await Client.findById(id);
+    const client = await Client.findById(clientId); // Assurez-vous que clientId est un ObjectId valide
     if (!client) {
-      return res.status(404).json({ message: "Client non trouvé" });
+      return res.status(404).json({ message: 'Client non trouvé' });
     }
-
-    return res.json(client);
-  } catch (err) {
-    console.error('Erreur lors de la récupération du client :', err);
-    return res.status(500).json({ message: "Erreur serveur lors de la récupération du client" });
+    res.json(client);
+  } catch (error) {
+    console.error('Erreur lors de la récupération du client :', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération du client' });
+  }
+};
+const getClientCount = async (req, res) => {
+  try {
+    const countClient = await Client.countDocuments();
+    
+    res.json({ count: countClient});
+  } catch (error) {
+    console.error('Erreur lors du comptage des devis :', error);
+    res.status(500).json({ message: 'Erreur lors du comptage des devis' });
   }
 };
 const deleteClient = async (req, res) => {
@@ -197,4 +205,4 @@ const updateClient = async (req, res) => {
   }
 };
 
-module.exports = { generateStrongPassword, transporter, getAllClient, getClientById, createClient, deleteClient, updateClient };
+module.exports = { getClientCount,generateStrongPassword, transporter, getAllClient, getClientById, createClient, deleteClient, updateClient };

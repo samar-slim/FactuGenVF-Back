@@ -36,6 +36,16 @@ router.put('/facture/cancel/:id', async (req, res) => {
       res.status(500).json({ message: 'Erreur lors de l\'annulation de la facture', error });
     }
   });
+  router.get('/count', async (req, res) => {
+    try {
+      const countAvoir = await Avoir.countDocuments();
+      
+      res.json({ count: countAvoir});
+    } catch (error) {
+      console.error('Erreur lors du comptage des devis :', error);
+      res.status(500).json({ message: 'Erreur lors du comptage des devis' });
+    }
+  });
 // Route pour récupérer la liste des avoirs
 router.get('/avoirs', async (req, res) => {
   try {

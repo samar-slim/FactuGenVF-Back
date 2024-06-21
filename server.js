@@ -38,12 +38,17 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix + '-' + file.originalname);
   }
 });
+
 const upload = multer({ storage: storage });
 const bodyParser = require('body-parser');
+app.get('/file/*', (req, res) => {
+  const filePath = req.params[0];
+  res.sendFile(filePath, { root: '/' });
+});
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.use('/uploads', express.static('path/to/uploads/folder'));
 app.use(cors({
   origin: "http://localhost:5173", 
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -114,6 +119,11 @@ mongoose.connect(process.env.db_name)
     }
   });
 
+  app.get('/api/signature/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(__dirname, 'uploads', filename);
+    res.sendFile(filePath);
+  });
 
   app.post('/api/extract-text', upload.single('file'), async (req, res) => {
     const file = req.file;
