@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router(); 
 
-const { getAllClient,  getClientById, createClient, deleteClient, updateClient, getClientByEmail } = require("../controllers/clientController"); 
+const { getAllClient,  getClientById, createClient, deleteClient, updateClient, getClientByEmail, getClientCount } = require("../controllers/clientController"); 
 
 router.post("/add", createClient);
 router.get("/", getAllClient);
