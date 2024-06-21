@@ -8,8 +8,34 @@ const Devis = require('../models/devisModel');
 
 const dataCron = require('../cornJobs/dataJobs');
 
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 // get lest data
 const getData = async (req, res) => {
+   
+    try {
+        sleep(2000)
+    const dataNew = await Data.find().sort({ creationDate: -1 }).limit(1);
+    res.status(200).json(dataNew);
+    } catch (error){
+        res.status(500).json({ message: error.message }); 
+    }
+}
+
+const getUserData = async (req, res) => {
+    try {
+        sleep(2000)
+    const user = await Data.find().sort({ creationDate: -1 }).limit(1);
+        res.status(200).json(user);
+    } catch (error){
+        res.status(500).json({ message: error.message }); 
+    }
+}
+
+const userData = async function(){
+    console.log("user data started ")
+
     const numberUser = await User.countDocuments();
     console.log('numberUser',numberUser);
     const numberFacture = await Facture.countDocuments();
@@ -46,10 +72,8 @@ const getData = async (req, res) => {
       userPerCountry 
     });
     await data.save();
-    console.log(data);
-    const dataNew = await Data.find().sort({ creationDate: -1 }).limit(5);
-    res.json(dataNew);
+    console.log('data saved',data);
 }
 
 
-module.exports = { getData };
+module.exports = { getData , userData, getUserData};

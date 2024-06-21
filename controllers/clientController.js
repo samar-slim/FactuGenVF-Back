@@ -193,6 +193,19 @@ const deleteClient = async (req, res) => {
 
 };
 
+const getClientByEmail = async (req, res) => {
+  const email = req.params.email;
+  try {
+    const client = await Client.findOne({ email });
+    if (!client) {  
+      return res.status(404).json({ message: 'Client not found' });
+    } 
+    res.json(client);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  } 
+};
+
 const updateClient = async (req, res) => {
   try {
     const updatedClient = await Client.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -205,4 +218,4 @@ const updateClient = async (req, res) => {
   }
 };
 
-module.exports = { getClientCount,generateStrongPassword, transporter, getAllClient, getClientById, createClient, deleteClient, updateClient };
+module.exports = { getClientCount,generateStrongPassword, transporter, getAllClient, getClientById, createClient, deleteClient, updateClient , getClientByEmail };

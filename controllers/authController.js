@@ -181,12 +181,12 @@ const logout = async (req, res) => {
           id,
           expiration: Date.now() + 10 * 60 * 1000,
         },
-        process.env.JWT_RESET_FORGOTTEN_PASSWORD_KEY
+        process.env.JWT_SECRET
       );
   
       const url = `${
-        process.env.HOST || "localhost:3000"
-      }/#/authentication/resetPassword/${token}`;
+        process.env.HOST || "localhost:8080"
+        }/resetPassword/${token}`;
   
       await sendResetPasswordEmailFunction(url, req.body.email);
   
@@ -210,6 +210,7 @@ const logout = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     const { newPassword, confirmPassword } = req.body;
+    console.log("Received reset password request:", req.body);
     const token = req.params.token;
 
     console.log("Received reset password request with token:", token);
@@ -233,7 +234,8 @@ const resetPassword = async (req, res) => {
     const id = decoded.id;
     console.log("Decoded ID:", id);
 
-    const compteFound = await Account.findById(id);
+    const compteFound = await User.findById(id);
+    const account = await Account.findOne({ user: id });
     console.log("Found Compte:", compteFound);
 
     if (!compteFound) {
@@ -246,15 +248,12 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({ successful: false, message: "Passwords don't match" });
     }
 
-    if (newPassword.length < 5) {
-      console.log("Password length less than 5");
-      return res.status(400).json({ successful: false, message: "Password must be at least 5 characters long" });
-    }
+   
 
     //const encodedPassword = await compteFound.passw(newPassword, 10);
-    compteFound.password = newPassword;
+    account.password = newPassword;
 
-    await compteFound.save();
+    await account.save();
 
     console.log("Password updated successfully");
     return res.status(200).json({ success: true, message: "Password updated successfully" });
