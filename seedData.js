@@ -35,6 +35,7 @@ async function seedDatabase() {
     const existingTemplate = await Template.find({name :template.name});
     if (!existingTemplate) {
       await Template.create(template);
+
       //console.log(`Template ${template.name} created`);
     } else {
       //console.log(`Template ${template.name} already exists`);
@@ -80,6 +81,7 @@ async function seedDatabase() {
 
     } else {
       console.log('User already exists:');
+
     }
 
     let account = await Account.findOne({ accountIdentifier: accountData.accountIdentifier });
@@ -89,7 +91,9 @@ async function seedDatabase() {
       await account.save();
       console.log('Account created:', account);
     } else {
+
       console.log('Account already exists:');
+
     }
 
     const defaultConfig = { backupTime: "0 0 * * *" };
@@ -98,6 +102,7 @@ async function seedDatabase() {
             defaultConfig,
             { upsert: true, new: true, setDefaultsOnInsert: true }
         );
+
     
   } catch (error) {
     console.error('Error seeding database:', error);

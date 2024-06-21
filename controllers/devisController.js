@@ -81,19 +81,21 @@ const getAlldevis = async (req,res) => {
 };
 const getClientDevis = async (req, res) => {
   try {
+    console.log('Client ID:', req.params.clientId);
     const clientId = req.params.clientId;
 
     if (clientId) {
       // Rechercher le client par son ID
      
         // Rechercher les devis associés au client
-        const devis = await Devis.find({ 'devis.devis.clientId': clientId })
-          
+        const devis = await Devis.find({ 'devis.clientId': clientId })
+        
+        console.log("Devis:", devis);
 
-        const devisFiltres = devis.filter(devis => devis.devis.clientId === clientId);
+        //const devisFiltres = devis.filter(devis => devis.devis.clientId === clientId);
 
         // Retourner les devis filtrés
-        res.json(devisFiltres);
+        res.json(devis);
      
     } else {
       res.status(400).json({ message: 'Aucun clientId fourni' });
@@ -128,7 +130,18 @@ const getdevisById =async(req,res) => {
 }catch (err) {
     return res.json(err);
 }
-}
+};
+const getDevisCount = async (req, res) => {
+  try {
+    const countDevis = await Devis.countDocuments();
+    console.log('Nombre de devis :', countDevis);
+    res.json({ count: countDevis });
+  } catch (error) {
+    console.error('Erreur lors du comptage des devis :', error);
+    res.status(500).json({ message: 'Erreur lors du comptage des devis' });
+  }
+};
+
 const genererLienPartage = async (req, res) => {
     const { devisId } = req.params;
     const lienPartage = shortid.generate();
@@ -185,4 +198,4 @@ const deleteDevis = async (req, res) => {
 };
 
 
-module.exports = {getClientDevis, genererLienPartage,uploadImage, getAlldevis ,getdevisById ,createdevis ,updatedevis,deleteDevis}
+module.exports = {getClientDevis,getDevisCount, genererLienPartage,uploadImage, getAlldevis ,getdevisById ,createdevis ,updatedevis,deleteDevis}

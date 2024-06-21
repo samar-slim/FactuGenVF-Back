@@ -1,6 +1,7 @@
 const Produit = require("../models/produitModel");
 
-
+const Facture = require("../models/factureModel");
+const Devis = require("../models/devisModel");
 
 const createproduit = async(req, res) => {
     const { imageUrl, nom_article, description, prix, prix_unitaire, categorieId, reference, tva, type_unité, type } = req.body;
@@ -66,19 +67,33 @@ const getProduitById = async (req, res) => {
 };
 
 const deleteproduit = async (req, res) => {
-    const id = req.params.produitId;
-    console.log('iddd',id)
+    const produitId = req.params.produitId;
+  
     try {
-        const deletedProduit = await Produit.findByIdAndDelete(id);
-        if (!deletedProduit) {
-            return res.status(404).json({ message: 'Produit non trouvé' });
-        }
-        return res.status(200).json({ message: 'Produit supprimé avec succès' });
+      // Vérifier si le produit existe avant de procéder aux autres vérifications
+      
+  
+      // Vérifier si le produit est utilisé dans des factures
+      const facturesCount = await Facture.countDocuments({ 'lignes.produitId': produitId });
+      if (facturesCount > 0) {
+        return res.status(400).json({ message: "Le produit ne peut pas être supprimé car il est utilisé dans des factures." });
+      }
+  
+      // Vérifier si le produit est utilisé dans des devis
+      const devisCount = await Devis.countDocuments({ 'lignes.produitId': produitId });
+      if (devisCount > 0) {
+        return res.status(400).json({ message: "Le produit ne peut pas être supprimé car il est utilisé dans des devis." });
+      }
+  
+      // Si le produit n'est pas utilisé dans des factures ou des devis, le supprimer
+      await Produit.findByIdAndDelete(produitId);
+  
+      return res.status(200).json({ message: "Produit supprimé avec succès" });
     } catch (err) {
-        console.error('Erreur lors de la suppression du produit:', err);
-        return res.status(500).json({ message: 'Erreur lors de la suppression du produit' });
+      console.error('Erreur lors de la suppression du produit:', err);
+      return res.status(500).json({ message: "Erreur lors de la suppression du produit" });
     }
-};
+  };
 
 const updateproduit= async(req, res) => {
     const id = req.params.produitId;
