@@ -35,9 +35,9 @@ async function seedDatabase() {
     const existingTemplate = await Template.find({name :template.name});
     if (!existingTemplate) {
       await Template.create(template);
-      console.log(`Template ${template.name} created`);
+      //console.log(`Template ${template.name} created`);
     } else {
-      console.log(`Template ${template.name} already exists`);
+      //console.log(`Template ${template.name} already exists`);
     }
   }
 
@@ -73,13 +73,13 @@ async function seedDatabase() {
   
   try {
     let user = await User.findOne({ email: userData.email });
-    console.log('User:', user);
+
     if (!user) {
       user = new User(userData);
       await user.save();
-      console.log('User created:', user);
+
     } else {
-      console.log('User already exists:', user);
+      console.log('User already exists:');
     }
 
     let account = await Account.findOne({ accountIdentifier: accountData.accountIdentifier });
@@ -89,7 +89,7 @@ async function seedDatabase() {
       await account.save();
       console.log('Account created:', account);
     } else {
-      console.log('Account already exists:', account);
+      console.log('Account already exists:');
     }
 
     const defaultConfig = { backupTime: "0 0 * * *" };
@@ -98,7 +98,6 @@ async function seedDatabase() {
             defaultConfig,
             { upsert: true, new: true, setDefaultsOnInsert: true }
         );
-    console.log('Config created:', defaultConfig);
     
   } catch (error) {
     console.error('Error seeding database:', error);
